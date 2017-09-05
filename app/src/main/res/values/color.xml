@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    
+    
+    <color name="Black">#000000</color>
+    <color name="bai">#FFFFFF</color>
+    <color name="lanse">#1497db</color>
+    <color name="huang">#FFFF00</color>  
+    <color name="lvse">#00FF00</color>
+    <color name="mudanhong">#FF00FF</color>
+    <color name="qingse">#00FFFF</color>
+    <color name="hanglan">#70DB93</color>
+    <color name="fenhong">#FFC0CB</color>
+    <color name="zise">#800080</color>
+    <color name="hese">#6B8E23</color>
+    <color name="jinse">#FFD700</color>
+    <color name="zongse">#A52A2A</color>
+    <color name="huise">#778899</color>
+    <color name="qianhuise">#D9D9D9</color>
+    <color name="qianqingse">#33CCFF</color>
+    <color name="qianlanse">#009ACD</color>
+    <color name="jinhuanse">#FF8C00</color>
+
+    
+    
+    
+    
+</resources>

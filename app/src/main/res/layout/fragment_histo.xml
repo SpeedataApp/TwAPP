@@ -1,0 +1,24 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.example.twapp.fragment.HistoFragment">
+
+
+    <Button
+        android:id="@+id/btn_history"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="查看历史" />
+
+    <lecho.lib.hellocharts.view.LineChartView
+        android:id="@+id/history_chartView"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_weight="0"
+        android:accessibilityLiveRegion="polite"
+        android:background="@color/hanglan"
+        android:minWidth="20dp"
+        android:padding="20dp" />
+</LinearLayout>

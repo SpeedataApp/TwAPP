@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/fun_share_weixin"
+        android:id="@+id/user_head"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="66dp" />
+   <TextView
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:textSize="20sp"
+       android:text="name"
+       android:layout_below="@+id/user_head"
+       android:layout_centerHorizontal="true"
+       android:layout_marginTop="26dp"
+       android:id="@+id/tv_user_name" />
+
+    <Button
+        android:id="@+id/user_bt_clearuser"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="退出"
+        android:layout_marginTop="42dp"
+        android:layout_below="@+id/tv_user_name"
+        android:layout_centerHorizontal="true" />
+
+</RelativeLayout>
