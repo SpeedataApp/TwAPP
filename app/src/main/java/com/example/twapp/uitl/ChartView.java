@@ -7,7 +7,6 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
-import lecho.lib.hellocharts.animation.ChartAnimationListener;
 import lecho.lib.hellocharts.formatter.LineChartValueFormatter;
 import lecho.lib.hellocharts.formatter.SimpleLineChartValueFormatter;
 import lecho.lib.hellocharts.gesture.ContainerScrollType;
@@ -76,17 +75,6 @@ public class ChartView {
         }
 //        x轴完事了，该布点了
         for (int i = 0; i < twDate.size(); i++) {
-            if (preferencesUitl.read("thightSound", true)) {
-                Double ss = Double.valueOf(twDate.get(i).toString());
-                if (24 < ss) {
-                    PlaySound.play(PlaySound.HIGHT_SOUND, PlaySound.NO_CYCLE);
-                }
-            } else {
-
-            }
-            if (preferencesUitl.read("thightShake", true)) {
-                vibrator.setVibrator();
-            }
             PointValue pointValue = new PointValue(i, Float.parseFloat(twDate.get(i).toString()));
 //            这个点的标注信息，String的随便来
             pointValue.setLabel(twDate.get(i).toString() + "℃");
@@ -94,18 +82,14 @@ public class ChartView {
             chartline.setFormatter(chartValueFormatter);
 //            把这个点添加到集合里去,等会显示用
             pointValues.add(pointValue);
-            if (pointValues.get(i).getY() > 30)
-                chartline.setPointColor(Color.RED);
-            else chartline.setPointColor(Color.BLUE);
         }
-        axisX.setHasSeparationLine(false);
-        axisY.setHasSeparationLine(false);
+
 //        把点的集合放在线上，显示多条线 就用不同的line分别添加不同的values
         chartline.setValues(pointValues);
 //        线的颜色
         chartline.setColor(Color.BLUE);
 ////        点的颜色
-//        chartline.setPointColor(Color.BLUE);
+        chartline.setPointColor(Color.RED);
 //        形状，ValueShape提供了几个
         chartline.setShape(ValueShape.CIRCLE);
 //        线的透明度
@@ -113,9 +97,9 @@ public class ChartView {
 //        点的大小
         chartline.setPointRadius(4);
 //        点上的标注信息，刚才 pointValues里面每个点的标注
-        chartline.setCubic(false);
+        chartline.setCubic(true);
 //        阴影面积
-        chartline.setFilled(false);
+        chartline.setFilled(true);
 //        是否用线显示。如果为false 则没有曲线只有点显示
         chartline.setHasLines(true);
 //        是否用点显示。如果为false 则没有点
@@ -140,29 +124,24 @@ public class ChartView {
           6-x轴的大名
           Y轴也是这么设置，当你想点击不同的按钮，显示不同的信息时可用type进行处理
 */
-        axisX.setValues(mAxisXValues).setHasLines(true).setTextColor(Color.BLACK).setLineColor(Color.WHITE).setTextSize(12).setName("时间");
-        ;
-        axisY.setHasLines(true).setTextColor(Color.BLACK).setLineColor(Color.WHITE);
-        axisY.setName("温度(℃)");
-
-//        X轴上的标注数量,点少的时候可以这么用，点多的时候，就不建议这么用了
-//        axisX.setMaxLabelChars(8);
+        axisX.setHasTiltedLabels(true);// 设置X轴文字向左旋转45度
+        axisX.setValues(mAxisXValues).setHasLines(true).setTextColor(Color.BLACK).setLineColor
+                (Color.BLACK).setTextSize(12).setName("时间");
+        axisY.setHasLines(true).setTextColor(Color.BLACK).setLineColor(Color.BLACK).setTextSize(12).setName("温度(℃)");
+        axisX.setHasSeparationLine(true);
+        axisY.setHasSeparationLine(false);
 //        x 轴在底部
         lineChartData.setAxisXBottom(axisX);
-//        x 轴在顶部
-//        lineChartData.setAxisXTop(axisX);
 //        y 轴在左，也可以右边
         lineChartData.setAxisYLeft(axisY);
-
+        lineChartData.setValueLabelsTextColor(Color.BLACK);// 设置数据文字颜色
 //        这两句话设置折线上点的背景颜色，默认是有一个小方块，而且背景色和点的颜色一样
 //        如果想要原来的效果可以不用这两句话，我的显示的是透明的
         lineChartData.setValueLabelBackgroundColor(Color.TRANSPARENT);
         lineChartData.setValueLabelBackgroundEnabled(false);
 
-
 //        把数据放在chart里，设置完这句话其实就可以显示了
         chartView.setLineChartData(lineChartData);
-
 
 //        设置行为属性，支持缩放、滑动以及平移，设置他就可以自己设置动作了
         chartView.setInteractive(true);
@@ -175,7 +154,7 @@ public class ChartView {
 //        我设置两种。点击不同按钮时，y轴固定最大值最小值不一样
 //        这里可以固定x轴，让y轴变化，也可以x轴y轴都固定，也就是固定显示在你设定的区间里的点point（x，y）
         v.top = 45;
-        v.bottom = 25;
+        v.bottom = 20;
 //        这句话非常关键，上面两种设置，来确定最大可视化样式
 //        我们可以理解为，所有点放在linechart时，整个视图全看到时候的样子，也就是点很多很多，距离很紧密
         chartView.setMaximumViewport(v);
@@ -183,24 +162,38 @@ public class ChartView {
 //        如果你想所有，这两句话就不用了
 //        当然这个非常灵活，也可以固定显示y轴 最小多少，最大多少
         v.left = 0;
-        v.right = 9;
+        v.right = 4;
 //        确定上两句话的设置
         chartView.setCurrentViewport(v);
+    }
 
-//        还可以设置当前的动画效果，有兴趣的同学可以试一试
-        chartView.setViewportAnimationListener(new ChartAnimationListener() {
-            @Override
-            public void onAnimationStarted() {
-            }
-
-            @Override
-            public void onAnimationFinished() {
-                chartView.setMaximumViewport(v);
-                chartView.setViewportAnimationListener(null);
-
-            }
-        });
+    public void initZhexian() {
+        axisX.setValues(mAxisXValues).setHasLines(true).setTextColor(Color.BLACK).setLineColor(Color.BLACK).setTextSize(12).setName("时间");
+        axisY.setHasLines(true).setTextColor(Color.BLACK).setLineColor(Color.BLACK).setTextSize(12).setName("温度(℃)");
+        //        x 轴在底部
+        lineChartData.setAxisXBottom(axisX);
+        //        y 轴在左，也可以右边
+        lineChartData.setAxisYLeft(axisY);
+        //        把数据放在chart里，设置完这句话其实就可以显示了
+        chartView.setLineChartData(lineChartData);
+        //        设置行为属性，支持缩放、滑动以及平移，设置他就可以自己设置动作了
+        chartView.setInteractive(true);
+        //        可放大
+        chartView.setZoomEnabled(true);
+        //        我这边设置横向滚动
+        chartView.setContainerScrollEnabled(true, ContainerScrollType.HORIZONTAL);
+        //        设置可视化视图样式，这里能做的东西非常多，
+        final Viewport v = new Viewport(chartView.getMaximumViewport());
+        //        我设置两种。点击不同按钮时，y轴固定最大值最小值不一样
+        //        这里可以固定x轴，让y轴变化，也可以x轴y轴都固定，也就是固定显示在你设定的区间里的点point（x，y）
+        v.top = 45;
+        v.bottom = 20;
+        //        这句话非常关键，上面两种设置，来确定最大可视化样式
+        //        我们可以理解为，所有点放在linechart时，整个视图全看到时候的样子，也就是点很多很多，距离很紧密
+        chartView.setMaximumViewport(v);
+        //        确定上两句话的设置
         chartView.setCurrentViewport(v);
+
 
     }
 

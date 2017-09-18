@@ -67,7 +67,7 @@ public class ReadSerialPort {
                 byte[] len = cutBytes(bytes, i + 1, 1);
                 int lens = DataConversionUtils.byteArrayToInt(len);
                 int resultLens = lens + 1;//除了数据头数据在bytes中的长度
-                if (i + resultLens > bytes.length ) {
+                if (i + resultLens > bytes.length) {
                     return;
                 }
                 byte[] result = cutBytes(bytes, i, lens + 1);
@@ -118,12 +118,14 @@ public class ReadSerialPort {
      * 销毁 退出
      */
     public static void onDestroy() {
-        try {
-            deviceControl.PowerOffDevice();
-            serialPort.CloseSerial(serialPort.getFd());
-            readThread.interrupt();
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (deviceControl != null && serialPort != null && readThread != null) {
+            try {
+                deviceControl.PowerOffDevice();
+                serialPort.CloseSerial(serialPort.getFd());
+                readThread.interrupt();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 }

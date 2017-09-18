@@ -32,8 +32,9 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.0'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.0'
     implementation files('libs/hellocharts-library-1.5.8.jar')
-
     compile 'com.speedata:deivice:+'
     implementation 'org.greenrobot:eventbus:3.0.0'
     implementation 'org.greenrobot:greendao:3.2.2'
+    compile 'xyz.reginer.baseadapter:baseadapter:1.1.2'
+    compile 'com.android.support:recyclerview-v7:26.0.1'
 }

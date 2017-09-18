@@ -18,7 +18,6 @@
         android:layout_height="200dp"
         android:layout_weight="0"
         android:accessibilityLiveRegion="polite"
-        android:background="@color/hanglan"
         android:minWidth="20dp"
         android:padding="20dp" />
 </LinearLayout>

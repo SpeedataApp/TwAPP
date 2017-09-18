@@ -12,15 +12,18 @@
         android:background="@drawable/lingdang" />
 
     <TextView
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
         android:text="高温报警"
+        android:layout_marginTop="20dp"
         android:textSize="25sp" />
 
     <LinearLayout
         android:id="@+id/thight_sound"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="match_parent"
+        android:layout_gravity="center"
         android:layout_marginLeft="10dp"
         android:layout_weight="1"
         android:orientation="horizontal">
@@ -44,8 +47,9 @@
 
     <LinearLayout
         android:id="@+id/thight_shake"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="match_parent"
+        android:layout_gravity="center"
         android:layout_marginLeft="10dp"
 
         android:layout_weight="1"

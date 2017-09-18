@@ -1,5 +1,6 @@
 package com.example.twapp.uitl;
 
+import android.net.ParseException;
 import android.util.Log;
 
 import com.example.twapp.control.TwApplication;
@@ -181,35 +182,14 @@ public class TWManager {
 
     public static TWManager decodeSNandpayload() {
         if (temperatureData.isEncrypt()) {
-            for (int i = 0; i < SNs.length - 1; i++) {
-                Bsns[i] = rotateLeft(SNs[i], 2);
-            }
-            System.out.print("tw" + DataConversionUtils.byteArrayToStringLog(Bsns, Bsns.length));
-
-            for (int i = 0; i < Payload.length - 1; i++) {
-                Bpayload[i] = rotateLeft(Payload[i], 2);
-            }
+            Bsns = DataConvertUtil.rotateLeft(SNs, 2);
+            Bpayload = DataConvertUtil.rotateLeft(Payload, 2);
         } else {
             Bsns = SNs;
             Bpayload = Payload;
         }
-
-
         return mInstance;
     }
-
-    /**
-     * 循环左移
-     *
-     * @param sourceByte 待左移动的值
-     * @param n          左移动的为数
-     * @return
-     */
-    public static byte rotateLeft(byte sourceByte, int n) {
-        int temp = sourceByte;
-        return (byte) ((temp << n));
-    }
-
 
     /**
      * 组装SN数据
@@ -243,8 +223,8 @@ public class TWManager {
     }
 
     private static int Timefirst = 0;
-    private static List<String> Temperatures = new ArrayList();
-    private static List<String> twTime = new ArrayList<>();
+//    private static List<String> Temperatures = new ArrayList();
+//    private static List<String> twTime = new ArrayList<>();
 
     /**
      * 组装温度数据
@@ -270,41 +250,77 @@ public class TWManager {
                 }
             }
         }
-        long nowResultTime = System.currentTimeMillis() - Timefirst;
-        String t = testTime(nowResultTime);
-        //判断精度
-        if (temperatureData.getResolution() == 0) {
-            for (int i = 1; i < Bpayload.length - 1; i++) {
-                int tt = Integer.parseInt(getBit(Bpayload[i]), 2);
-                //Temperature = 25 + DataN / 10      (当Resolution为0时)
-                double temp = 25 + tt / 10;
-                long ss = temperatureData.getFirstTime();
-                String dd=testTime(ss);
-                if (nowResultTime > ss) {
-                    Temperatures.add(String.valueOf(temp));
-                    twTime.add(time(i));
-                }
-            }
-        } else if (temperatureData.getResolution() == 1) {
-//            Temperature = 25 + DataN/ 100(当Resolution为1时)
-            for (int i = 1; i < Bpayload.length; i += 2) {
-                String bit = getBit(Bpayload[i]);
-                String bit1 = getBit(Bpayload[i + 1]);
-                System.out.println("bit=" + bit + " bit1=" + bit1);
-                int tt = Integer.parseInt(bit + bit1, 2);
-                System.out.println("temp=" + tt);
-                double temp = 25 + tt / 100;
-                System.out.println("temp=" + temp);
-                if (nowResultTime > temperatureData.getFirstTime()) {
-                    Temperatures.add(String.valueOf(temp));
-                    twTime.add(time(i));
-                }
-            }
+        List<String> Temperatures = new ArrayList();
+        List<String> twTime = new ArrayList<>();
+        long ResultfirstTime = System.currentTimeMillis() - Timefirst;
+        if (temperatureData.getFirstTime() == 0) {
+            temperatureData.setFirstTime(ResultfirstTime);
         }
-        temperatureData.setFirstTime(nowResultTime);
-        temperatureData.setTemperatures(Temperatures);
-        temperatureData.setTwTime(twTime);
+        String t = testTime(ResultfirstTime);
+        long ss = temperatureData.getFirstTime();
+        String dd = testTime(ss);
+        if (temperatureData.getFirstTime() <= ResultfirstTime) {
+            temperatureData.setFirstTime(ResultfirstTime);
+            //判断精度
+            if (temperatureData.getResolution() == 0) {
+                for (int i = 1; i < Bpayload.length; i++) {
+                    int tt = Integer.parseInt(getBit(Bpayload[i]), 2);
+                    //Temperature = 25 + DataN / 10      (当Resolution为0时)
+                    double temp = 25 + tt / 10;
+                    Temperatures.add(String.valueOf(temp));
+                    twTime.add(time(i));
+                }
+            } else if (temperatureData.getResolution() == 1) {
+//            Temperature = 25 + DataN/ 100(当Resolution为1时)
+                for (int i = 1; i < Bpayload.length; i += 2) {
+                    String bit = getBit(Bpayload[i]);
+                    String bit1 = getBit(Bpayload[i + 1]);
+                    System.out.println("bit=" + bit + " bit1=" + bit1);
+                    int tt = Integer.parseInt(bit + bit1, 2);
+                    System.out.println("temp=" + tt);
+                    double temp = 25 + tt / 100;
+                    System.out.println("temp=" + temp);
+                    Temperatures.add(String.valueOf(temp));
+                    twTime.add(time(i));
+                }
+            }
+            temperatureData.setFirstTime(ResultfirstTime);
+            temperatureData.setTemperatures(Temperatures);
+            temperatureData.setTwTime(twTime);
+            return mInstance;
+        }
         return mInstance;
+    }
+
+    /**
+     * 比较两个时间
+     *
+     * @param starTime  开始时间
+     * @param endString 结束时间
+     * @return 结束时间大于开始时间返回true，否则反之֮
+     */
+    public static boolean compareTwoTime(String starTime, String endString) {
+        boolean isDayu = false;
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+
+        try {
+            Date parse = dateFormat.parse(starTime);
+            Date parse1 = dateFormat.parse(endString);
+
+            long diff = parse1.getTime() - parse.getTime();
+            if (diff >= 0) {
+                isDayu = true;
+            } else {
+                isDayu = false;
+            }
+        } catch (ParseException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (java.text.ParseException e) {
+            e.printStackTrace();
+        }
+        return isDayu;
+
     }
 
     public static TwBody getTemperatureData() {
@@ -320,7 +336,7 @@ public class TWManager {
     public static String time(int i) {
         long nowTime = System.currentTimeMillis();
         long timeN = nowTime - Timefirst - (i - 1) * temperatureData.getInterval();
-        SimpleDateFormat formatter = new SimpleDateFormat("dd/HH/mm");
+        SimpleDateFormat formatter = new SimpleDateFormat("HH:mm");
         Date curDate = new Date(timeN);//获取当前时间
         String Time = formatter.format(curDate);
         Log.i("tw", "parsePayload: time " + Time);
@@ -338,6 +354,7 @@ public class TWManager {
      * 保存数据库
      */
     public static void saveDb() {
+
         TwBodyDao mDao = TwApplication.getsInstance().getDaoSession().getTwBodyDao();
         mDao.insertOrReplace(temperatureData);
         List<TwBody> twBodyList = mDao.loadAll();

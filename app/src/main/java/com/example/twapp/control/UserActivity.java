@@ -31,12 +31,14 @@ public class UserActivity extends Activity {
         btn_clear = (Button) findViewById(R.id.user_bt_clearuser);
         tvname = findViewById(R.id.tv_user_name);
         imageViewHead = findViewById(R.id.user_head);
-        sharedPreferencesUitl.write("name", "");
-        sharedPreferencesUitl.write("upwd", "");
+        tvname.setText(sharedPreferencesUitl.read("name", ""));
+
         btn_clear.setOnClickListener(new OnClickListener() {
 
             @Override
             public void onClick(View v) {
+                sharedPreferencesUitl.write("name", "");
+                sharedPreferencesUitl.write("upwd", "");
                 setResult(250);
                 finish();
             }

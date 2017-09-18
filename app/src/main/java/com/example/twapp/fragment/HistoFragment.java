@@ -32,13 +32,15 @@ public class HistoFragment extends Fragment implements View.OnClickListener {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
         // Inflate the layout for this fragment
-        View v = inflater.inflate(R.layout.fragment_histo, container, false);
+        View v = inflater.inflate(R.layout.fragment_histo,null);
+//        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         btnHistory = v.findViewById(R.id.btn_history);
         btnHistory.setOnClickListener(this);
         lineChartView = v.findViewById(R.id.history_chartView);
+//        lineChartView.setRotation(90);
         chartView = new ChartView(lineChartView, getActivity());
+        chartView.initZhexian();
         return v;
     }
 
@@ -52,9 +54,12 @@ public class HistoFragment extends Fragment implements View.OnClickListener {
         switch (view.getId()) {
             case R.id.btn_history:
                 TwBodyDao dao = TwApplication.getsInstance().getDaoSession().getTwBodyDao();
-                List<TwBody> userList = dao.queryBuilder()
-                        .where(TwBodyDao.Properties.Model.eq(1))
-                        .build().list();
+
+                  List<TwBody> userList=dao.loadAll();
+
+                //                List<TwBody> userList = dao.queryBuilder()
+//                        .where(TwBodyDao.Properties.Model.eq(1))
+//                        .build().list();
                 if (userList.size() > 0 && userList != null) {
                     TwBody twBody = userList.get(0);
                     chartView.setKLine(twBody.getTemperatures(), twBody.getTwTime());

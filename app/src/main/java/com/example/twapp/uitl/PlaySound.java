@@ -18,9 +18,6 @@ public class PlaySound {
     private static Map<Integer, Integer> mapSRC;
     private static SoundPool sp; //声音池
     public static final int HIGHT_SOUND = 1;
-    public static int ERROR_WUXIAO = 2;
-    public static int SUCCESS = 3;
-    public static int REPETITION = 4;
     public static int NO_CYCLE = 0;//不循环
 
 
@@ -30,12 +27,6 @@ public class PlaySound {
         mapSRC = new HashMap<>();
         //体温过高报警
         mapSRC.put(HIGHT_SOUND, sp.load(context, R.raw.hight, 0));
-        //无效二维码
-        mapSRC.put(ERROR_WUXIAO, sp.load(context, R.raw.error_wuxiao, 0));
-        //扣费成功
-        mapSRC.put(SUCCESS, sp.load(context, R.raw.success, 0));
-        //二维码重复
-        mapSRC.put(REPETITION, sp.load(context, R.raw.repetition, 0));
     }
 
 

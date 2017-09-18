@@ -54,7 +54,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
     protected void onCreate(Bundle savedInstanceState) {
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);//去掉标题栏
         super.onCreate(savedInstanceState);
-        setContentView(layout.activity_main);
+        setContentView(R.layout.activity_main);
         initSlidng();
         initview();
         initFragment();
@@ -110,6 +110,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
      * @param f
      */
     public void changeFragment(Fragment f) {
+        isLogoOk();
         //关闭
         if (slidingMenu != null && slidingMenu.isMenuShowing()) {
             slidingMenu.showContent();
@@ -152,6 +153,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
     }
 
     @Override
+
     public void onDetachedFromWindow() {
         super.onDetachedFromWindow();
 
@@ -180,7 +182,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
         sharedPreferencesUitl.read("name", "");
         sharedPreferencesUitl.read("upwd", "");
         logMsage.setText("立刻登陆");
-        logImagview.setImageResource(drawable.biz_pc_main_info_profile_avatar_bg_dark);
+        logImagview.setImageResource(drawable.login);
     }
 
     @SuppressLint("ResourceAsColor")

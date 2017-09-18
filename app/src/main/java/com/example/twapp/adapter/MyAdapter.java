@@ -20,7 +20,7 @@ import java.util.List;
 
 public class MyAdapter extends BaseAdapter {
 
-    List<twClass> adapterDatas = new ArrayList<twClass>();
+    List<TWClass> adapterDatas = new ArrayList<TWClass>();
 
     protected LayoutInflater layoutInflater = null;
 
@@ -28,21 +28,21 @@ public class MyAdapter extends BaseAdapter {
         layoutInflater = LayoutInflater.from(context);
     }
 
-    public void addDatas(twClass t) {
+    public void addDatas(TWClass t) {
         if (t != null) {
-//            Collections.reverse(adapterDatas);
+//            Collections.reverse(adapterD  atas);
             adapterDatas.add(t);
         }
     }
 
-    public void addDatas(List<twClass> lists) {
+    public void addDatas(List<TWClass> lists) {
         if (lists != null) {
             Collections.reverse(adapterDatas);
             adapterDatas.addAll(lists);
         }
     }
 
-    public void addDatas(List<twClass> lists, boolean isClear) {
+    public void addDatas(List<TWClass> lists, boolean isClear) {
         if (isClear) {
             adapterDatas.clear();
         }
@@ -63,7 +63,7 @@ public class MyAdapter extends BaseAdapter {
         }
     }
 
-    public List<twClass> getAllDatasFromAdapter() {
+    public List<TWClass> getAllDatasFromAdapter() {
         return adapterDatas;
     }
 
@@ -77,7 +77,7 @@ public class MyAdapter extends BaseAdapter {
 
 
     @Override
-    public twClass getItem(int position) {
+    public TWClass getItem(int position) {
         return adapterDatas.get(position);
     }
 
@@ -90,20 +90,15 @@ public class MyAdapter extends BaseAdapter {
     public View getView(int i, View views, ViewGroup viewGroup) {
         View view = layoutInflater.inflate(
                 R.layout.list_item_layout, null);
-        TextView tvModel = view.findViewById(R.id.tv_model);
-        TextView tvDate = view.findViewById(R.id.tv_date);
-        TextView tvRunningNumber = view.findViewById(R.id.tv_runningnumber);
-        TextView tvLowPower = view.findViewById(R.id.tv_low_power);
+        TextView tvTime = view.findViewById(R.id.tv_tw_time);
+        TextView tvDate = view.findViewById(R.id.tv_tw_date);
 
-        twClass twClass = getItem(i);
-        //设置数据倒叙
-        tvModel.setText(twClass.getModle() + "");
-        tvDate.setText(twClass.getDate());
-        tvRunningNumber.setText(twClass.getRuningNumber());
-        tvLowPower.setText(twClass.isLowPower() + "");
+        TWClass twClass = getItem(i);
+//        for (int j = 0; j < twClass.getTwData().size(); j++) {
+            tvTime.setText(twClass.getTwTime());
+            tvDate.setText(twClass.getTwData());
+//        }
         // 获取要适配的当前项
         return view;
-
     }
-
 }

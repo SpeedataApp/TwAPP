@@ -3,6 +3,7 @@ package com.example.twapp.fragment;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
@@ -19,8 +20,6 @@ import com.example.twapp.uitl.PlaySound;
 import com.example.twapp.uitl.SharedPreferencesUitl;
 import com.example.twapp.uitl.Vibrator;
 
-import static com.example.twapp.R.color.Black;
-import static com.example.twapp.R.color.lanse;
 
 public class TwHightFragment extends Fragment implements View.OnClickListener {
     private LinearLayout hightSound;
@@ -39,7 +38,7 @@ public class TwHightFragment extends Fragment implements View.OnClickListener {
         vibrator = new Vibrator(getActivity());
     }
 
-    @SuppressLint("ResourceAsColor")
+
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -55,17 +54,17 @@ public class TwHightFragment extends Fragment implements View.OnClickListener {
         hightSound.setOnClickListener(this);
         hightshake.setOnClickListener(this);
         if (preferencesUitl.read("thightShake", false)) {
-            tvVibrator.setTextColor(lanse);
+            tvVibrator.setTextColor(Color.parseColor("#1497db"));
             imageVibrator.setBackground(getActivity().getDrawable(R.drawable.vibrator_true));
         } else {
-            tvVibrator.setTextColor(Black);
+            tvVibrator.setTextColor(Color.parseColor("#000000"));
             imageVibrator.setBackground(getActivity().getDrawable(R.drawable.vibrator_false));
         }
         if (preferencesUitl.read("thightSound", false)) {
-            tvSound.setTextColor(lanse);
+            tvSound.setTextColor(Color.parseColor("#1497db"));
             imageSound.setBackground(getActivity().getDrawable(R.drawable.sound_true));
         } else {
-            tvSound.setTextColor(Black);
+            tvSound.setTextColor(Color.parseColor("#000000"));
             imageSound.setBackground(getActivity().getDrawable(R.drawable.sound_false));
         }
         return myview;
@@ -80,12 +79,12 @@ public class TwHightFragment extends Fragment implements View.OnClickListener {
                 if (!preferencesUitl.read("thightShake", false)) {
                     imageVibrator.setBackground(getActivity().getDrawable(R.drawable.vibrator_true));
                     preferencesUitl.write("thightShake", true);
-                    tvVibrator.setTextColor(lanse);
+                    tvVibrator.setTextColor(Color.parseColor("#1497db"));
                     vibrator.setVibrator();
                 } else {
                     imageVibrator.setBackground(getActivity().getDrawable(R.drawable.vibrator_false));
                     preferencesUitl.write("thightShake", false);
-                    tvVibrator.setTextColor(Black);
+                    tvVibrator.setTextColor(Color.parseColor("#000000"));
                     vibrator.cancel();
                 }
 //                senBroadcast("com.thight.shake", true);
@@ -95,11 +94,11 @@ public class TwHightFragment extends Fragment implements View.OnClickListener {
                     imageSound.setBackground(getActivity().getDrawable(R.drawable.sound_true));
                     preferencesUitl.write("thightSound", true);
                     PlaySound.play(PlaySound.HIGHT_SOUND, PlaySound.NO_CYCLE);
-                    tvSound.setTextColor(lanse);
+                    tvSound.setTextColor(Color.parseColor("#1497db"));
                 } else {
                     imageSound.setBackground(getActivity().getDrawable(R.drawable.sound_false));
                     preferencesUitl.write("thightSound", false);
-                    tvSound.setTextColor(Black);
+                    tvSound.setTextColor(Color.parseColor("#000000"));
                     PlaySound.stop(PlaySound.HIGHT_SOUND);
                 }
 //                senBroadcast("com.thight.sound", true);
