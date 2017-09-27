@@ -4,7 +4,6 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
 import org.greenrobot.greendao.database.Database;
-
 /**
  * ----------Dragon be here!----------/
  * 　　　┏┓　　　┏┓
@@ -25,9 +24,10 @@ import org.greenrobot.greendao.database.Database;
  * 　　　　　┃┫┫　┃┫┫
  * 　　　　　┗┻┛　┗┻┛
  * ━━━━━━神兽出没━━━━━━
- * 创   建:Reginer in  2017/2/16 11:55.
- * 联系方式:QQ:282921012
- * 功能描述:数据库帮助类
+ *
+ * @author :孙天伟 in  2017/9/27   13:32.
+ *         联系方式:QQ:420401567
+ *         功能描述: 数据库帮助类
  */
 public class DbHelper extends DaoMaster.OpenHelper {
 

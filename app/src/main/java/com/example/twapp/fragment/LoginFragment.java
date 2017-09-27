@@ -14,7 +14,7 @@ import android.widget.Toast;
 
 import com.example.twapp.R;
 import com.example.twapp.control.MainActivity;
-import com.example.twapp.uitl.SharedPreferencesUitl;
+import com.example.twapp.utils.SharedPreferencesUitl;
 
 public class LoginFragment extends Fragment {
 
@@ -73,6 +73,8 @@ public class LoginFragment extends Fragment {
                         sharedPreferencesUitl.write("name", name);
                         sharedPreferencesUitl.write("upwd", upwd);
                         mainActivity.changeFragment(mainActivity.homeFragment);
+                    }else {
+                        Toast.makeText(getActivity(),"密码错误",Toast.LENGTH_SHORT).show();
                     }
 
                     break;

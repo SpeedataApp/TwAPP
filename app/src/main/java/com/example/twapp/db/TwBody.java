@@ -1,13 +1,4 @@
 package com.example.twapp.db;
-
-import org.greenrobot.greendao.annotation.Convert;
-import org.greenrobot.greendao.annotation.Entity;
-import org.greenrobot.greendao.annotation.Generated;
-import org.greenrobot.greendao.annotation.Id;
-import org.greenrobot.greendao.annotation.Unique;
-
-import java.util.List;
-
 /**
  * ----------Dragon be here!----------/
  * 　　　┏┓　　　┏┓
@@ -29,102 +20,115 @@ import java.util.List;
  * 　　　　　┗┻┛　┗┻┛
  * ━━━━━━神兽出没━━━━━━
  *
- * @author :Reginer in  2017/8/7 6:48.
- *         联系方式:QQ:282921012
- *         功能描述:
+ * @author :孙天伟 in  2017/9/27   10:29.
+ *         联系方式:QQ:420401567
+ *         功能描述:  数据库实体类
  */
+import org.greenrobot.greendao.annotation.Convert;
+import org.greenrobot.greendao.annotation.Entity;
+import org.greenrobot.greendao.annotation.Generated;
+import org.greenrobot.greendao.annotation.Id;
+import org.greenrobot.greendao.annotation.Unique;
+
+import java.util.List;
 @Entity
 public class TwBody {
     @Id(autoincrement = true)
     private Long id;
     @Unique
     //SN数据
-    private int Model;  //产品型号
-    private String Date; //设备生产日期
+    private String peopleNun;
+    private String pName;
+    private String paAge;
+    private String pGender;
+    private String pBedNumber;
+    private String pResult;
     private String RunningNumber; //设备流水号 15位
-    //Flags 数据
-    private boolean Encrypt = false;//是否加密
-    private int Resolution = 0;//体温精度 0=0.1  1=0.01
-    private int TimeUnit = 0;//体温数据寿命的时间单位。当该位为0时，
-    // 时间单位为秒。当该位为1时，时间单位为分钟
-    private boolean isLowBattery = false;//是否低电 1低电 0正常
     private long firstTime;
-    private int Interval;//体温数据时间间隔  0：Tmeasure为10秒钟，通常用于测试阶段。 1：Tmeasure为1分钟。2：Tmeasure为15分钟。3：保留。
     @Convert(columnType = String.class, converter = StringConverter.class)
     private List<String> Temperatures;//温度数据
     @Convert(columnType = String.class, converter = StringConverter.class)
     private List<String> TwTime;//温度数据时间
 
-
-    @Generated(hash = 1977483397)
-    public TwBody(Long id, int Model, String Date, String RunningNumber, boolean Encrypt,
-            int Resolution, int TimeUnit, boolean isLowBattery, long firstTime, int Interval,
-            List<String> Temperatures, List<String> TwTime) {
-        this.id = id;
-        this.Model = Model;
-        this.Date = Date;
-        this.RunningNumber = RunningNumber;
-        this.Encrypt = Encrypt;
-        this.Resolution = Resolution;
-        this.TimeUnit = TimeUnit;
-        this.isLowBattery = isLowBattery;
+    public TwBody(String peopleNun, String pName, String paAge, String pGender, String pBedNumber, String pResult, String runningNumber, long firstTime, List<String> temperatures, List<String> twTime) {
+        this.peopleNun = peopleNun;
+        this.pName = pName;
+        this.paAge = paAge;
+        this.pGender = pGender;
+        this.pBedNumber = pBedNumber;
+        this.pResult = pResult;
+        RunningNumber = runningNumber;
         this.firstTime = firstTime;
-        this.Interval = Interval;
-        this.Temperatures = Temperatures;
-        this.TwTime = TwTime;
+        Temperatures = temperatures;
+        TwTime = twTime;
     }
 
     @Generated(hash = 1671162065)
     public TwBody() {
     }
 
-
-    public long getFirstTime() {
-        return firstTime;
-    }
-
-    public void setFirstTime(long firstTime) {
-        this.firstTime = firstTime;
-    }
-
-    public String getDate() {
-        return Date;
-    }
-
-    public void setDate(String date) {
-        Date = date;
-    }
-
-    public List<String> getTwTime() {
-        return TwTime;
-    }
-
-    public void setTwTime(List<String> twTime) {
-        TwTime = twTime;
-    }
-
-    public List<String> getTemperatures() {
-        return Temperatures;
-    }
-
-    public void setTemperatures(List<String> temperatures) {
-        Temperatures = temperatures;
-    }
-
-    public Long getId() {
-        return this.id;
-    }
-
-    public void setId(Long id) {
+    @Generated(hash = 1298473826)
+    public TwBody(Long id, String peopleNun, String pName, String paAge, String pGender, String pBedNumber, String pResult, String RunningNumber, long firstTime, List<String> Temperatures,
+                  List<String> TwTime) {
         this.id = id;
+        this.peopleNun = peopleNun;
+        this.pName = pName;
+        this.paAge = paAge;
+        this.pGender = pGender;
+        this.pBedNumber = pBedNumber;
+        this.pResult = pResult;
+        this.RunningNumber = RunningNumber;
+        this.firstTime = firstTime;
+        this.Temperatures = Temperatures;
+        this.TwTime = TwTime;
     }
 
-    public int getModel() {
-        return Model;
+    public String getpGender() {
+        return pGender;
     }
 
-    public void setModel(int model) {
-        Model = model;
+    public void setpGender(String pGender) {
+        this.pGender = pGender;
+    }
+
+    public String getpBedNumber() {
+        return pBedNumber;
+    }
+
+    public void setpBedNumber(String pBedNumber) {
+        this.pBedNumber = pBedNumber;
+    }
+
+    public String getPeopleNun() {
+        return peopleNun;
+    }
+
+    public void setPeopleNun(String peopleNun) {
+        this.peopleNun = peopleNun;
+    }
+
+    public String getpName() {
+        return pName;
+    }
+
+    public void setpName(String pName) {
+        this.pName = pName;
+    }
+
+    public String getPaAge() {
+        return paAge;
+    }
+
+    public void setPaAge(String paAge) {
+        this.paAge = paAge;
+    }
+
+    public String getpResult() {
+        return pResult;
+    }
+
+    public void setpResult(String pResult) {
+        this.pResult = pResult;
     }
 
     public String getRunningNumber() {
@@ -135,56 +139,68 @@ public class TwBody {
         RunningNumber = runningNumber;
     }
 
-    public boolean isEncrypt() {
-        return Encrypt;
+    public long getFirstTime() {
+        return firstTime;
     }
 
-    public void setEncrypt(boolean encrypt) {
-        Encrypt = encrypt;
+    public void setFirstTime(long firstTime) {
+        this.firstTime = firstTime;
     }
 
-    public int getResolution() {
-        return Resolution;
+    public List<String> getTemperatures() {
+        return Temperatures;
     }
 
-    public void setResolution(int resolution) {
-        Resolution = resolution;
+    public void setTemperatures(List<String> temperatures) {
+        Temperatures = temperatures;
     }
 
-    public int getTimeUnit() {
-        return TimeUnit;
+    public List<String> getTwTime() {
+        return TwTime;
     }
 
-    public void setTimeUnit(int timeUnit) {
-        TimeUnit = timeUnit;
+    public void setTwTime(List<String> twTime) {
+        TwTime = twTime;
     }
 
-    public int getInterval() {
-        return Interval;
+    public Long getId() {
+        return this.id;
     }
 
-    public void setInterval(int interval) {
-        Interval = interval;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public boolean isLowBattery() {
-        return isLowBattery;
+    public String getPName() {
+        return this.pName;
     }
 
-    public void setLowBattery(boolean lowBattery) {
-        isLowBattery = lowBattery;
+    public void setPName(String pName) {
+        this.pName = pName;
     }
 
-    public boolean getEncrypt() {
-        return this.Encrypt;
+
+    public String getPResult() {
+        return this.pResult;
     }
 
-    public boolean getIsLowBattery() {
-        return this.isLowBattery;
+    public void setPResult(String pResult) {
+        this.pResult = pResult;
     }
 
-    public void setIsLowBattery(boolean isLowBattery) {
-        this.isLowBattery = isLowBattery;
+    public String getPGender() {
+        return this.pGender;
     }
 
+    public void setPGender(String pGender) {
+        this.pGender = pGender;
+    }
+
+    public String getPBedNumber() {
+        return this.pBedNumber;
+    }
+
+    public void setPBedNumber(String pBedNumber) {
+        this.pBedNumber = pBedNumber;
+    }
 }

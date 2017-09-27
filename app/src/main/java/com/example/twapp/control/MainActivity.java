@@ -2,7 +2,10 @@ package com.example.twapp.control;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -18,19 +21,19 @@ import android.widget.Toast;
 
 import com.example.twapp.R;
 import com.example.twapp.fragment.AboutUsFragment;
+import com.example.twapp.fragment.ActivateFragment;
 import com.example.twapp.fragment.HistoFragment;
 import com.example.twapp.fragment.HomeFragment;
 import com.example.twapp.fragment.LoginFragment;
 import com.example.twapp.fragment.TwHightFragment;
 import com.example.twapp.lib3.slidingmenu.SlidingMenu;
-import com.example.twapp.uitl.SharedPreferencesUitl;
 import com.example.twapp.updateversion.UpdateVersion;
+import com.example.twapp.utils.SharedPreferencesUitl;
 
 import static com.example.twapp.R.color.huise;
 import static com.example.twapp.R.dimen;
 import static com.example.twapp.R.drawable;
 import static com.example.twapp.R.id;
-import static com.example.twapp.R.layout;
 
 public class MainActivity extends FragmentActivity implements OnClickListener {
     public LoginFragment logoFragment;
@@ -38,22 +41,23 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
     public AboutUsFragment aboutUsFragment;
     public HomeFragment homeFragment;
     public HistoFragment histoFragment;
+    public ActivateFragment activateFragment;
     // 左侧5布局
-    private RelativeLayout Alar, updata, aboutus, rllogin, history;
+    private RelativeLayout Alar, updata, aboutus, rllogin, history, activate;
     // 标题
     private ImageView leftTitle;
     private TextView mainTitle;
     private SlidingMenu slidingMenu;
     // 登录 的图片和文本
     private ImageView logImagview;
-    private TextView logMsage;
+    private TextView logMsage, dianliang;
     private SharedPreferencesUitl sharedPreferencesUitl;
     private long mExitTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        this.requestWindowFeature(Window.FEATURE_NO_TITLE);//去掉标题栏
         super.onCreate(savedInstanceState);
+        this.requestWindowFeature(Window.FEATURE_NO_TITLE);//去掉标题栏
         setContentView(R.layout.activity_main);
         initSlidng();
         initview();
@@ -80,7 +84,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
         // 在当前的activity中滑动
         slidingMenu.attachToActivity(this, SlidingMenu.SLIDING_CONTENT);
         // 左侧的布局
-        slidingMenu.setMenu(layout.activity_main_left);
+        slidingMenu.setMenu(R.layout.activity_main_left);
 
     }
 
@@ -102,6 +106,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
         aboutUsFragment = new AboutUsFragment();
         homeFragment = new HomeFragment();
         histoFragment = new HistoFragment();
+        activateFragment = new ActivateFragment();
     }
 
     /**
@@ -134,6 +139,9 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
         logMsage = slidingMenu.findViewById(R.id.frg_right_logo);
         history = slidingMenu.findViewById(id.rl_history);
         rllogin = slidingMenu.findViewById(R.id.relativelayout_unlogin);
+        activate = slidingMenu.findViewById(id.rl_actvite);
+        activate.setOnClickListener(this);
+        dianliang = findViewById(id.dianliang);
         rllogin.setOnClickListener(this);
         Alar.setOnClickListener(this);
         updata.setOnClickListener(this);
@@ -142,9 +150,26 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
         logImagview.setOnClickListener(this);
         logMsage.setOnClickListener(this);
         history.setOnClickListener(this);
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction("com.tw.LowBattery");
+        registerReceiver(Receiver, intentFilter);
         sharedPreferencesUitl = SharedPreferencesUitl.getInstance(this, "tw");
         isLogoOk();
     }
+
+    BroadcastReceiver Receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals("com.tw.LowBattery")) {
+                boolean b = intent.getBooleanExtra("lowBattery", false);
+                if (b) {
+                    dianliang.setText("正常");
+                } else {
+                    dianliang.setText("过低");
+                }
+            }
+        }
+    };
 
     @Override
     protected void onPause() {
@@ -192,7 +217,13 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
         updata.setBackgroundColor(0);
         aboutus.setBackgroundColor(0);
         history.setBackgroundColor(0);
+        activate.setBackgroundColor(0);
         switch (v.getId()) {
+            case id.rl_actvite:
+                activate.setBackgroundColor(huise);
+                mainTitle.setText("绑定标签");
+                changeFragment(activateFragment);
+                break;
             case id.rl_alarm://高温报警
                 Alar.setBackgroundColor(huise);
                 mainTitle.setText("高温报警");

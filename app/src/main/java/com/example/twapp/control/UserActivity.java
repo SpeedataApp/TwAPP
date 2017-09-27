@@ -11,7 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.twapp.R;
-import com.example.twapp.uitl.SharedPreferencesUitl;
+import com.example.twapp.utils.SharedPreferencesUitl;
 
 public class UserActivity extends Activity {
 

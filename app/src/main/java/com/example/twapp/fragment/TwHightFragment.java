@@ -16,9 +16,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.twapp.R;
-import com.example.twapp.uitl.PlaySound;
-import com.example.twapp.uitl.SharedPreferencesUitl;
-import com.example.twapp.uitl.Vibrator;
+import com.example.twapp.utils.PlaySound;
+import com.example.twapp.utils.SharedPreferencesUitl;
+import com.example.twapp.utils.Vibrator;
 
 
 public class TwHightFragment extends Fragment implements View.OnClickListener {

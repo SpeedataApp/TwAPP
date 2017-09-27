@@ -11,7 +11,7 @@ import com.example.twapp.R;
 import com.example.twapp.control.TwApplication;
 import com.example.twapp.db.TwBody;
 import com.example.twapp.db.TwBodyDao;
-import com.example.twapp.uitl.ChartView;
+import com.example.twapp.utils.ChartView;
 
 import java.util.List;
 
@@ -33,7 +33,7 @@ public class HistoFragment extends Fragment implements View.OnClickListener {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View v = inflater.inflate(R.layout.fragment_histo,null);
+        View v = inflater.inflate(R.layout.fragment_histo, null);
 //        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         btnHistory = v.findViewById(R.id.btn_history);
         btnHistory.setOnClickListener(this);
@@ -55,11 +55,7 @@ public class HistoFragment extends Fragment implements View.OnClickListener {
             case R.id.btn_history:
                 TwBodyDao dao = TwApplication.getsInstance().getDaoSession().getTwBodyDao();
 
-                  List<TwBody> userList=dao.loadAll();
-
-                //                List<TwBody> userList = dao.queryBuilder()
-//                        .where(TwBodyDao.Properties.Model.eq(1))
-//                        .build().list();
+                List<TwBody> userList = dao.loadAll();
                 if (userList.size() > 0 && userList != null) {
                     TwBody twBody = userList.get(0);
                     chartView.setKLine(twBody.getTemperatures(), twBody.getTwTime());
