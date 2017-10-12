@@ -67,8 +67,7 @@ public class HomeFragment extends android.support.v4.app.Fragment implements Vie
     private LinearLayout lyTable;
     private ScanDecode scanDecode;
     private DBUitl dBtable;
-    private String runingNumber;
-    //    private TWManager twManager;
+    private String runingNumber="";
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -148,9 +147,11 @@ public class HomeFragment extends android.support.v4.app.Fragment implements Vie
                 if (b) {
                     chartView.setVisibility(View.VISIBLE);
                     lyTable.setVisibility(View.GONE);
-                    TwBody twBody = dBtable.queryTwBody(runingNumber);
-                    if (twBody.getTemperatures() != null || twBody.getTemperatures().size() != 0) {
-                        chartViews.setKLine(twBody.getTemperatures(), twBody.getTwTime());
+                    if (!"".equals(runingNumber)) {
+                        TwBody twBody = dBtable.queryTwBody(runingNumber);
+                        if (twBody.getTemperatures() != null || twBody.getTemperatures().size() != 0) {
+                            chartViews.setKLine(twBody.getTemperatures(), twBody.getTwTime());
+                        }
                     }
                 } else {
                     chartView.setVisibility(View.GONE);
@@ -219,6 +220,7 @@ public class HomeFragment extends android.support.v4.app.Fragment implements Vie
         TwBody twBody = dBtable.queryTwBody(runingNumber);
         if (twBody.getTemperatures() != null || twBody.getTemperatures().size() > 1) {
             list.clear();
+            int l = twBody.getTemperatures().size();
             for (int i = 0; i < twBody.getTemperatures().size(); i++) {
                 TwDataInfo twClass = new TwDataInfo();
                 twClass.setTwData(twBody.getTemperatures().get(i));

@@ -25,10 +25,10 @@ public class TwApplication extends Application {
     public void onCreate() {
         super.onCreate();
         sInstance = this;
-        twManager = TWManager.getInstance(this);
         DbHelper helper = new DbHelper(this, "twdb", null);
         Database db = helper.getWritableDb();
         daoSession = new DaoMaster(db).newSession();
+        twManager = TWManager.getInstance(this);
 //        jobService = new ComponentName(this, UploadingSer.class);
     }
 

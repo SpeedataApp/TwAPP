@@ -53,7 +53,6 @@ public class TWManager {
     private static Context mContext;
     private static SharedPreferencesUitl preferencesUitl;
     private static Vibrator vibrator;
-    private static List<Double> temperatures;
 
     /**
      * 单实例
@@ -203,6 +202,8 @@ public class TWManager {
         return mInstance;
     }
 
+    static DBUitl dBtable = new DBUitl();
+
     /**
      * 组装SN数据
      *
@@ -234,10 +235,6 @@ public class TWManager {
         return mInstance;
     }
 
-    static List<String> Temperatures = new ArrayList();
-    static List<String> twTime = new ArrayList<>();
-    static byte[] bytes;
-
     /**
      * 组装温度数据
      *
@@ -245,7 +242,7 @@ public class TWManager {
      * @return
      */
     public static TWManager parsePayload() {
-        DBUitl dBtable = new DBUitl();
+        Log.i("tws", "parsePayload: 数据  ： " + DataConversionUtils.byteArrayToString(Bpayload));
         if (Bpayload.length >= 2 && dBtable.whereRunNum(twBeen.getRunningNumber())) {
             int firstTime = Integer.parseInt(getBit(Bpayload[0]), 2);//第一个体温数据（Data1）的生存时间
             int interval = twBeen.getInterval();//间隔时间
@@ -269,34 +266,32 @@ public class TWManager {
             String cc = testTime(System.currentTimeMillis() - Timefirst);//真实第一时间
             int twLengths = (body.getTemperatures().size());//上一次保存接受体温标签接收过多少个数据
             Log.i("tws", "parsePayload: " + "数据库时间：" + dd + "真实时间：" + cc + "数据库长度：" + twLengths + "现实数据长度：" + Bpayload.length);
-            if (System.currentTimeMillis() - Timefirst > ResultfirstTime) {
-                temperatures = new ArrayList();
+            if ((System.currentTimeMillis() - Timefirst) > ResultfirstTime) {
+                List<String> Temperatures = new ArrayList();
+                List<String> twTime = new ArrayList<>();
+
                 dBtable.cahageData(twBeen.getRunningNumber(), System.currentTimeMillis() - Timefirst);//保存第一个体温数据的生存时间
-                int gg = Bpayload.length - twLengths;
-                Log.i("tws", "parsePayload:   截取长度：" + gg);
-                bytes = cutBytes(Bpayload, 1, Bpayload.length - twLengths - 1);
                 //判断精度
                 if (twBeen.getResolution() == 0) {
-                    for (int i = bytes.length - 1; i >= 0; i--) {
-                        if (bytes[i] == 0xFF || bytes[i] == 0xFE || bytes[i] == 0xFD) {//温度过高  温度错误  温度过低
+                    for (int i = 1; i < Bpayload.length; i++) {
+                        if (Bpayload[i] == 0xFF || Bpayload[i] == -2 || Bpayload[i] == 0xFD) {//温度过高  温度错误  温度过低
                             continue;
                         }
-                        int tt = Integer.parseInt(getBit(bytes[i]), 2);
+                        int tt = Integer.parseInt(getBit(Bpayload[i]), 2);
                         //Temperature = 25 + DataN / 10      (当Resolution为0时)
                         double temp = 25 + tt / 10;
                         isHights(temp);
-                        temperatures.add(temp);
                         Temperatures.add(String.valueOf(temp));
-                        int ff = i + 1 + twLengths;
-                        Log.i("tws", "parsePayload: 判断： " + ff);
-                        twTime.add(time(i + 1, twBeen.getInterval()));
+                        twTime.add(time(i));
 
                     }
                 } else if (twBeen.getResolution() == 1) {
+                    int j = 1;
                     // Temperature = 25 + DataN/ 100(当Resolution为1时)
-                    for (int i = bytes.length - 1; i >= 0; i -= 2) {
-                        byte data = (byte) (Bpayload[i] + Bpayload[i + 1]);
-                        if (data == 0xFFFF || data == 0xFFFE || data == 0xFFFD) {//温度过高
+                    for (int i = 1; i < Bpayload.length; i += 2) {
+                        j += 1;
+                        int data = DataConversionUtils.byteArrayToInt(cutBytes(Bpayload, i, 2), false);
+                        if (data == 0xFFFF || data == 0xFFFE || data == 0xFFFD) {//温度过高  温度错误  温度过低
                             continue;
                         }
                         String bit = getBit(Bpayload[i]);
@@ -307,27 +302,15 @@ public class TWManager {
                         double temp = 25 + tt / 100;
                         isHights(temp);
                         System.out.println("temp=" + temp);
-                        temperatures.add(temp);
                         Temperatures.add(String.valueOf(temp));
-                        twTime.add(time(i + 1, twBeen.getInterval()));
+                        twTime.add(time(j));
                     }
                 }
+                //根据体温贴id（流水号）修改数据库对应的体温数据信息
                 dBtable.cahageData(twTime, Temperatures, twBeen.getRunningNumber());
             }
         }
         return mInstance;
-    }
-
-    boolean isHight = true;
-
-    public static double getMax(List<Double> arr) {
-        double max = arr.get(0);
-        for (int i = 1; i < arr.size(); i++) {
-            if (arr.get(i) > max) {
-                max = arr.get(i);
-            }
-        }
-        return max;
     }
 
     public static void isHights(double d) {
@@ -346,22 +329,39 @@ public class TWManager {
         return twBeen;
     }
 
+    static long timeN = 0;
+
     /**
      * 计算每个数据的时间间隔
      *
      * @param i
      * @return
      */
-    public static String time(int i, int s) {
+    public static String time(int i) {
+
         long nowTime = System.currentTimeMillis();
-        long timeN = nowTime - Timefirst - (i - 1) * s;
-        SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss");
+        if (Bpayload.length > 15) {
+            if (Bpayload.length - i <= 15) {
+                timeN = timeN - 60000;
+            } else {
+                timeN = nowTime - Timefirst - (i - 1) * twBeen.getInterval();
+            }
+        } else {
+            timeN = nowTime - Timefirst - (i - 1) * twBeen.getInterval();
+        }
+        SimpleDateFormat formatter = new SimpleDateFormat("HH:mm");
         Date curDate = new Date(timeN);//获取当前时间
         String Time = formatter.format(curDate);
         Log.i("tw", "parsePayload: time " + Time);
         return Time;
     }
 
+    /**
+     * 计算体温时间
+     *
+     * @param l
+     * @return
+     */
     public static String testTime(long l) {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss");
         Date curDate = new Date(l);//获取当前时间

@@ -1,5 +1,7 @@
 package com.example.twapp.utils;
 
+import java.util.List;
+
 /**
  * ----------Dragon be here!----------/
  * 　　　┏┓　　　┏┓
@@ -74,6 +76,22 @@ public class DataConvertUtil {
             out[i] = rotateRight(sourceBytes[i], n);
         }
         return out;
+    }
+
+    /**
+     * 取最大值
+     *
+     * @param arr
+     * @return
+     */
+    public static double getMax(List<Double> arr) {
+        double max = arr.get(0);
+        for (int i = 1; i < arr.size(); i++) {
+            if (arr.get(i) > max) {
+                max = arr.get(i);
+            }
+        }
+        return max;
     }
 }
 

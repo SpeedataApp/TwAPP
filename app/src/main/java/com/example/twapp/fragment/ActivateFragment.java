@@ -41,6 +41,7 @@ public class ActivateFragment extends Fragment implements View.OnClickListener {
         bednum = v.findViewById(R.id.edittext_bed_num);
         result = v.findViewById(R.id.edittext_result);
         btnActivate.setOnClickListener(this);
+
         return v;
     }
 
