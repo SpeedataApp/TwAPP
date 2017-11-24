@@ -10,7 +10,8 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="请扫描病人腕带及体温标签进行绑定"
+        android:gravity="center"
+        android:text="请输入病人腕带号及体温标签号进行绑定"
         android:textSize="20sp" />
 
     <ScrollView
@@ -42,7 +43,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:hint="输入病人年龄" />
+                android:hint="输入病人年龄"
+                android:inputType="number" />
 
             <EditText
                 android:id="@+id/edittext_gender"
@@ -56,6 +58,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
+                android:inputType="number"
                 android:hint="输入病人床号" />
 
             <EditText
@@ -63,7 +66,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:hint="输入病人诊断结果" />
+                android:hint="输入病人诊断结果"
+                android:visibility="gone" />
 
             <EditText
                 android:id="@+id/run_num"

@@ -11,6 +11,8 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -29,6 +31,10 @@ public class TwHightFragment extends Fragment implements View.OnClickListener {
     private ImageView imageSound;
     private SharedPreferencesUitl preferencesUitl;
     private Vibrator vibrator;
+    private EditText etxHight, etxLow;
+    private Button btn_save_set;
+    private boolean isVibrator = true;
+    private boolean isSound = true;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -36,6 +42,8 @@ public class TwHightFragment extends Fragment implements View.OnClickListener {
         preferencesUitl = SharedPreferencesUitl.getInstance(getActivity(), "tw");
         PlaySound.initSoundPool(getActivity());
         vibrator = new Vibrator(getActivity());
+        float hight = preferencesUitl.read("hight", 37.5f);
+        float low = preferencesUitl.read("hight", 36.5f);
     }
 
 
@@ -50,20 +58,28 @@ public class TwHightFragment extends Fragment implements View.OnClickListener {
         imageSound = myview.findViewById(R.id.image_sound);
         tvSound = myview.findViewById(R.id.tv_sound);
         tvVibrator = myview.findViewById(R.id.tv_vibrator);
-
+        etxHight = myview.findViewById(R.id.etx_hight);
+        etxLow = myview.findViewById(R.id.etx_low);
+        btn_save_set = myview.findViewById(R.id.btn_save_set);
+        btn_save_set.setOnClickListener(this);
         hightSound.setOnClickListener(this);
         hightshake.setOnClickListener(this);
+
         if (preferencesUitl.read("thightShake", false)) {
             tvVibrator.setTextColor(Color.parseColor("#1497db"));
+            isVibrator = false;
             imageVibrator.setBackground(getActivity().getDrawable(R.drawable.vibrator_true));
         } else {
+            isVibrator = true;
             tvVibrator.setTextColor(Color.parseColor("#000000"));
             imageVibrator.setBackground(getActivity().getDrawable(R.drawable.vibrator_false));
         }
         if (preferencesUitl.read("thightSound", false)) {
+            isSound = false;
             tvSound.setTextColor(Color.parseColor("#1497db"));
             imageSound.setBackground(getActivity().getDrawable(R.drawable.sound_true));
         } else {
+            isVibrator = true;
             tvSound.setTextColor(Color.parseColor("#000000"));
             imageSound.setBackground(getActivity().getDrawable(R.drawable.sound_false));
         }
@@ -76,34 +92,53 @@ public class TwHightFragment extends Fragment implements View.OnClickListener {
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.thight_shake:
-                if (!preferencesUitl.read("thightShake", false)) {
+                if (isVibrator) {
+                    isVibrator = false;
                     imageVibrator.setBackground(getActivity().getDrawable(R.drawable.vibrator_true));
-                    preferencesUitl.write("thightShake", true);
                     tvVibrator.setTextColor(Color.parseColor("#1497db"));
                     vibrator.setVibrator();
                 } else {
+                    isVibrator = true;
                     imageVibrator.setBackground(getActivity().getDrawable(R.drawable.vibrator_false));
-                    preferencesUitl.write("thightShake", false);
                     tvVibrator.setTextColor(Color.parseColor("#000000"));
                     vibrator.cancel();
                 }
-//                senBroadcast("com.thight.shake", true);
                 break;
             case R.id.thight_sound:
-                if (!preferencesUitl.read("thightSound", false)) {
+                if (isSound) {
+                    isSound = false;
                     imageSound.setBackground(getActivity().getDrawable(R.drawable.sound_true));
-                    preferencesUitl.write("thightSound", true);
                     PlaySound.play(PlaySound.HIGHT_SOUND, PlaySound.NO_CYCLE);
                     tvSound.setTextColor(Color.parseColor("#1497db"));
                 } else {
+                    isSound = true;
                     imageSound.setBackground(getActivity().getDrawable(R.drawable.sound_false));
-                    preferencesUitl.write("thightSound", false);
                     tvSound.setTextColor(Color.parseColor("#000000"));
                     PlaySound.stop(PlaySound.HIGHT_SOUND);
                 }
-//                senBroadcast("com.thight.sound", true);
+
+                break;
+            case R.id.btn_save_set:
+                float hight = Float.valueOf(etxHight.getText().toString());
+                float low = Float.valueOf(etxLow.getText().toString());
+                preferencesUitl.write("hight", hight);
+                preferencesUitl.write("hight", low);
+                if (isVibrator) {
+                    preferencesUitl.write("thightShake", false);
+                } else {
+                    preferencesUitl.write("thightShake", true);
+                }
+                if (isSound) {
+                    preferencesUitl.write("thightSound", false);
+                } else {
+                    preferencesUitl.write("thightSound", true);
+                }
+                getActivity().getSupportFragmentManager().beginTransaction().
+                        replace(R.id.main_layout_viewgroup, new HomeFragment()).commit();
+
                 break;
         }
+
     }
 
     private void senBroadcast(String s, boolean b) {

@@ -101,7 +101,6 @@ public class ChartView {
 //            把这个点添加到集合里去,等会显示用
             pointValues.add(pointValue);
         }
-
 //        把点的集合放在线上，显示多条线 就用不同的line分别添加不同的values
         chartline.setValues(pointValues);
 //        线的颜色

@@ -32,24 +32,6 @@
             android:layout_centerVertical="true"
             android:text="体温管家" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:textColor="@color/bai"
-            android:layout_alignTop="@+id/main_title_text"
-            android:text="电量" />
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/bai"
-            android:id="@+id/dianliang"
-            android:layout_alignBottom="@+id/main_title_left"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:text="正常" />
-
     </RelativeLayout>
 
     <LinearLayout

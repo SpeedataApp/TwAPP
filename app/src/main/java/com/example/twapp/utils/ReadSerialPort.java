@@ -57,7 +57,7 @@ public class ReadSerialPort {
             deviceControl = new DeviceControl(DeviceControl.PowerType.MAIN, 98);
 //            deviceControl = new DeviceControl(DeviceControl.PowerType.MAIN, 94);
             deviceControl.PowerOnDevice();
-            SystemClock.sleep(500);
+            SystemClock.sleep(300);
             serialPort = new SerialPort();
 //            serialPort.OpenSerial(SerialPort.SERIAL_TTYMT3, 9600);
             serialPort.OpenSerial(SerialPort.SERIAL_TTYMT0, 9600);
@@ -82,21 +82,28 @@ public class ReadSerialPort {
      * @param bytes 串口原数据
      */
     private static void parsePessage(byte bytes[]) {
-        Log.e("tw", "parsePessage: " + bytes.length);
+//        Log.e("tws",  "###" + DataConversionUtils.byteArrayToStringLog(bytes, bytes.length));
         for (int i = 0; i < bytes.length; i++) {
             if (bytes[bytes.length - 1] == 0x5A) {
                 return;
             } else if ((byte) bytes[i] == 0x5A) {//校验头
-                byte[] len = cutBytes(bytes, i + 1, 1);
+                byte[] len =  DataConvertUtil.cutBytes(bytes, i + 1, 1);
                 int lens = DataConversionUtils.byteArrayToInt(len);
+                if (lens < 8 || lens > 255) {
+                    continue;
+                }
                 int resultLens = lens + 1;//除了数据头数据在bytes中的长度
                 if (i + resultLens > bytes.length) {
-                    return;
+                    continue;
                 }
-                byte[] result = cutBytes(bytes, i, lens + 1);
-//                Log.e("tw", Arrays.toString(result));
-                Log.e("tw", "resultBytes:" + DataConversionUtils.byteArrayToStringLog(result, resultLens));
-                EventBus.getDefault().post(new MyEventBus(result));
+                byte[] result =  DataConvertUtil.cutBytes(bytes, i, lens + 1);
+                if (result.length < 11) {
+                    continue;
+                } else {
+                    Log.e("tws", "串口第一次过滤数据 resultBytes:" + DataConversionUtils.byteArrayToStringLog(result, resultLens));
+                    EventBus.getDefault().post(new MyEventBus(result));
+                    continue;
+                }
             } else {
                 continue;
             }
@@ -104,19 +111,6 @@ public class ReadSerialPort {
         }
     }
 
-    /**
-     * 剪切数组
-     *
-     * @param bytes
-     * @param start
-     * @param length
-     * @return
-     */
-    public static byte[] cutBytes(byte[] bytes, int start, int length) {
-        byte[] res = new byte[length];
-        System.arraycopy(bytes, start, res, 0, length);
-        return res;
-    }
 
     static class ReadThread extends Thread {
         @Override
@@ -143,8 +137,8 @@ public class ReadSerialPort {
     public static void onDestroy() {
         if (deviceControl != null && serialPort != null && readThread != null) {
             try {
-                deviceControl.PowerOffDevice();
                 serialPort.CloseSerial(serialPort.getFd());
+                deviceControl.PowerOffDevice();
                 readThread.interrupt();
             } catch (IOException e) {
                 e.printStackTrace();

@@ -8,5 +8,7 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_history">HistoryActivity</string>
+    <string name="islowbattery">电量正常</string>
+    <string name="lowbattery">电量过低</string>
 
 </resources>

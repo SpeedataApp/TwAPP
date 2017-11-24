@@ -1,5 +1,6 @@
 package com.example.twapp.utils;
 
+import com.example.twapp.R;
 import com.example.twapp.control.TwApplication;
 import com.example.twapp.db.TwBody;
 import com.example.twapp.db.TwBodyDao;
@@ -49,7 +50,7 @@ public class DBUitl {
     /**
      * 查找数据
      *
-     * @param pNum  腕带编号
+     * @param pNum   腕带编号
      * @param runNum 体温标签编号
      * @return
      */
@@ -59,12 +60,20 @@ public class DBUitl {
         return user;
     }
 
+    public void delete(String runNum) {
+        TwBody user = mDao.queryBuilder().where(TwBodyDao.Properties.RunningNumber.eq(runNum)).build().unique();
+        if (user != null) {
+            mDao.deleteByKey(user.getId());
+        }
+    }
+
     /**
      * 查数据
+     *
      * @param runNum 体温标签编号
      * @return
      */
-    public boolean whereRunNum(String runNum) {
+    public boolean queryRunNum(String runNum) {
         TwBody user = mDao.queryBuilder().where(TwBodyDao.Properties.RunningNumber.eq(runNum)).build().unique();
         if (user != null) {
             return true;
@@ -74,7 +83,8 @@ public class DBUitl {
     }
 
     /**
-     *  根据 体温标签编号 查找整条数据
+     * 根据 体温标签编号 查找整条数据
+     *
      * @param runNum
      * @return
      */
@@ -85,6 +95,7 @@ public class DBUitl {
 
     /**
      * 查找所有数据
+     *
      * @return
      */
     public List<TwBody> queryAll() {
@@ -94,17 +105,35 @@ public class DBUitl {
         return twBodies;
     }
 
+    public void ChagePassIDs() {
+        List<TwBody> twBodies = mDao.loadAll();
+        if (twBodies != null && twBodies.size() > 0) {
+            for (int i = 0; i < twBodies.size(); i++) {
+                cahagePassID(twBodies.get(i).getRunningNumber(), R.drawable.pass_false);
+            }
+        }
+    }
+
     /**
      * 根据体温标签编号修改数据
      *
      * @param listTime
      * @param listTemperatures
      */
-    public void cahageData(List<String> listTime, List<String> listTemperatures, String runNum) {
-
+    public void cahageData(String runNum, int Model, String Date, boolean Encrypt,
+                           int Resolution, int Interval, int TimeUnit,
+                           String isLowBattery, int i, List<String> listTime, List<String> listTemperatures) {
         TwBody user = mDao.queryBuilder().where(
                 TwBodyDao.Properties.RunningNumber.eq(runNum)).build().unique();
         if (user != null) {
+            user.setModel(Model);
+            user.setDate(Date);
+            user.setEncrypt(Encrypt);
+            user.setResolution(Resolution);
+            user.setInterval(Interval);
+            user.setTimeUnit(TimeUnit);
+            user.setIsLowBattery(isLowBattery);
+            user.setPassId(i);
             user.setTwTime(listTime);
             user.setTemperatures(listTemperatures);
             mDao.update(user);
@@ -123,6 +152,42 @@ public class DBUitl {
                 TwBodyDao.Properties.RunningNumber.eq(runNum)).build().unique();
         if (user != null) {
             user.setFirstTime(time);
+            mDao.update(user);
+        }
+    }
+
+    public void cahagePassID(String runNum, int id) {
+        TwBody user = mDao.queryBuilder().where(
+                TwBodyDao.Properties.RunningNumber.eq(runNum)).build().unique();
+        if (user != null) {
+            user.setPassId(id);
+            mDao.update(user);
+        }
+    }
+
+    /**
+     * * 修改指定数据
+     *
+     * @param runNum
+     * @param pNum
+     * @param name
+     * @param age
+     * @param gender
+     * @param bedNum
+     */
+
+
+    public void dialogUpData(String runNum1,String runNum, String pNum, String name, String age, String gender, String bedNum) {
+
+        TwBody user = mDao.queryBuilder().where(
+                TwBodyDao.Properties.RunningNumber.eq(runNum1)).build().unique();
+        if (user != null) {
+            user.setRunningNumber(runNum);
+            user.setPName(name);
+            user.setPaAge(age);
+            user.setPGender(gender);
+            user.setPBedNumber(bedNum);
+            user.setPeopleNun(pNum);
             mDao.update(user);
         }
     }

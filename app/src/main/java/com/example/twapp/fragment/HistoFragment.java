@@ -58,6 +58,7 @@ public class HistoFragment extends Fragment implements View.OnClickListener {
                 List<TwBody> userList = dao.loadAll();
                 if (userList.size() > 0 && userList != null) {
                     TwBody twBody = userList.get(0);
+
                     chartView.setKLine(twBody.getTemperatures(), twBody.getTwTime());
                     chartView.onClick();
                 }

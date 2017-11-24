@@ -2,6 +2,7 @@ package com.example.twapp.fragment;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,13 +20,14 @@ import java.util.List;
 
 public class ActivateFragment extends Fragment implements View.OnClickListener {
     private Button btnActivate;
-    private EditText pNnm, runNum, name, age, gender, bednum, result;
+    private EditText pNnm, runNum, name, age, gender, bednum;
     DBUitl dBtable;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         dBtable = new DBUitl();
+        Log.d("ActivateFragment", "onCreate");
     }
 
     @Override
@@ -39,16 +41,22 @@ public class ActivateFragment extends Fragment implements View.OnClickListener {
         age = v.findViewById(R.id.edittext_age);
         gender = v.findViewById(R.id.edittext_gender);
         bednum = v.findViewById(R.id.edittext_bed_num);
-        result = v.findViewById(R.id.edittext_result);
         btnActivate.setOnClickListener(this);
-
         return v;
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
+    public void onResume() {
+        super.onResume();
+        pNnm.setText("");
+        runNum.setText("");
+        name.setText("");
+        age.setText("");
+        gender.setText("");
+        bednum.setText("");
+        Log.d("ActivateFragment", "onResume");
     }
+
 
     List<String> list = new ArrayList<>();
 
@@ -56,25 +64,26 @@ public class ActivateFragment extends Fragment implements View.OnClickListener {
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btn_activate:
+
                 String pnum = String.valueOf(pNnm.getText());
                 String runnum = String.valueOf(runNum.getText());
                 String names = String.valueOf(name.getText());
                 String ages = String.valueOf(age.getText());
                 String genders = String.valueOf(gender.getText());
                 String bednums = String.valueOf(bednum.getText());
-                String results = String.valueOf(result.getText());
                 if (!pnum.equals("") && !runnum.equals("") && !names.equals("") && !ages.equals("")
-                        && !genders.equals("") && !bednums.equals("") && !results.equals("")) {
-                    TwBody twBody = new TwBody(pnum, names, ages,
-                            genders, bednums, results, runnum, 0, list, list);
+                        && !genders.equals("") && !bednums.equals("")) {
+                    TwBody twBody = new TwBody(pnum, names, ages, genders, bednums, runnum, 0L, R.drawable.pass_false, "", null, null);
                     dBtable.insertDtata(twBody);
                     Toast.makeText(getActivity(), "绑定成功！", Toast.LENGTH_SHORT).show();
+                    getActivity().getSupportFragmentManager().beginTransaction().
+                            replace(R.id.main_layout_viewgroup, new HomeFragment()).commit();
+
                 } else {
                     Toast.makeText(getActivity(), "信息不能为空！", Toast.LENGTH_SHORT).show();
                 }
-
                 break;
-        }
 
+        }
     }
 }

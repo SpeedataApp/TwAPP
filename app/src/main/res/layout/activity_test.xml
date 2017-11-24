@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.example.twapp.control.TestActivity">
+
+    <Button
+        android:id="@+id/start"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="开始接收数据" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="正常数据："
+        android:textSize="30sp" />
+
+    <TextView
+        android:id="@+id/tv_true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:text="错误数据："
+        android:textSize="30sp" />
+
+    <TextView
+        android:id="@+id/tv_false"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:textColor="@color/red" />
+
+    <TextView
+        android:id="@+id/num_total"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="总接收："/>
+
+    <TextView
+        android:id="@+id/num_true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="成功："/>
+
+    <TextView
+        android:id="@+id/num_false"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="失败："/>
+    <TextView
+        android:id="@+id/num_false2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="crc失败："/>
+
+</LinearLayout>

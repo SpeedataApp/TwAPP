@@ -1,5 +1,7 @@
 package com.example.twapp.been;
 
+import android.graphics.Bitmap;
+
 /**
  * Created by lenovo-pc on 2017/9/18.
  */
@@ -12,8 +14,11 @@ public class PeopleInfor {
     private String gender;
     private String bedNumber;
     private String result;
+    private String dianLiang;
+    private Bitmap bitmap;
+    private int id;
 
-    public PeopleInfor(String runNum, String peopleNum, String name, String age, String gender, String bedNumber, String result) {
+    public PeopleInfor(String runNum, String peopleNum, String name, String age, String gender, String bedNumber, String dianLiang,int id) {
         this.runNum = runNum;
         this.peopleNum = peopleNum;
         this.name = name;
@@ -21,6 +26,24 @@ public class PeopleInfor {
         this.gender = gender;
         this.bedNumber = bedNumber;
         this.result = result;
+        this.dianLiang = dianLiang;
+        this.id=id;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public Bitmap getBitmap() {
+        return bitmap;
+    }
+
+    public void setBitmap(Bitmap bitmap) {
+        this.bitmap = bitmap;
     }
 
     public String getRunNum() {
@@ -79,4 +102,11 @@ public class PeopleInfor {
         this.result = result;
     }
 
+    public String getDianLiang() {
+        return dianLiang;
+    }
+
+    public void setDianLiang(String dianLiang) {
+        this.dianLiang = dianLiang;
+    }
 }

@@ -1,10 +1,9 @@
 package com.example.twapp.utils;
 
 import android.content.Context;
-import android.content.Intent;
 import android.util.Log;
 
-import com.example.twapp.been.TwBeen;
+import com.example.twapp.R;
 import com.example.twapp.db.TwBody;
 import com.speedata.libutils.DataConversionUtils;
 
@@ -49,10 +48,9 @@ public class TWManager {
     private static byte[] byteData;
     private static byte[] Bsns = new byte[4];
     private static byte[] Bpayload;
-    private static int Timefirst = 0;
-    private static Context mContext;
+    private static long Timefirst = 0;
     private static SharedPreferencesUitl preferencesUitl;
-    private static Vibrator vibrator;
+    private static Context mContext;
 
     /**
      * 单实例
@@ -60,13 +58,12 @@ public class TWManager {
      * @return ExcelUtils
      */
     public static TWManager getInstance(Context context) {
+
         mContext = context;
         preferencesUitl = SharedPreferencesUitl.getInstance(context, "tw");
-        vibrator = new Vibrator(context);
         if (mInstance == null) {
             synchronized (TWManager.class) {
                 if (mInstance == null) {
-                    Log.i("tws", "重构 体温manage ");
                     mInstance = new TWManager();
                 }
             }
@@ -82,7 +79,6 @@ public class TWManager {
      */
     public static boolean isValid(byte[] originalData) {
         byteData = originalData;
-
         if (originalData == null || originalData.length <= 2) {
             System.out.println("invalid data for len");
             return false;
@@ -92,11 +88,12 @@ public class TWManager {
         } else if (originalData[0] != Marker) {
             System.out.println("invalid header");
             return false;
-        } else if (DataConversionUtils.byteArrayToInt(CRCUtil.GetCRC(0xffff, cutBytes(originalData, 1, originalData.length - 1))) != 0) {
+        } else if (DataConversionUtils.byteArrayToInt(CRCUtil.GetCRC(0xffff, DataConvertUtil.cutBytes(originalData, 1, originalData.length - 1))) != 0) {
             //TODO 判断 CRC
-            byte[] ff = cutBytes(originalData, 1, originalData.length - 1);
-            byte[] gg = CRCUtil.GetCRC(0xffff, ff);
-            int ss = DataConversionUtils.byteArrayToInt(gg);
+            Log.i("tws", "isValid:判断错误 CRC ");
+//            byte[] ff = cutBytes(originalData, 1, originalData.length - 1);
+//            byte[] gg = CRCUtil.GetCRC(0xffff, ff);
+//            int ss = DataConversionUtils.byteArrayToInt(gg);
             return false;
         } else {
             System.out.println("valid ok");
@@ -113,32 +110,19 @@ public class TWManager {
     public static TWManager assembleData() {
         Len = byteData[1]; //长度 1字节
         Flags = byteData[2];////标识  1字节
-        SNs = cutBytes(byteData, 3, 4);//设备id 4字节
-        Payload = cutBytes(byteData, 7, Len - 8);
+        SNs = DataConvertUtil.cutBytes(byteData, 3, 4);//设备id 4字节
+        Payload = DataConvertUtil.cutBytes(byteData, 7, Len - 8);
         Bpayload = new byte[Len - 8];
         return mInstance;
     }
 
-    /**
-     * 截取数组
-     *
-     * @param bytes  被截取数组
-     * @param start  被截取数组开始截取位置
-     * @param length 新数组的长度
-     * @return 新数组
-     */
-    public static byte[] cutBytes(byte[] bytes, int start, int length) {
-        byte[] res = new byte[length];
-        System.arraycopy(bytes, start, res, 0, length);
-        return res;
-    }
 
-    //    private static TwBody twBeen = new TwBody();/
-    private static TwBeen twBeen = new TwBeen();
+    private static TwBody twBeen = new TwBody();
+//    private static TwBeen twBeen = new TwBeen();
 
     public static TWManager parseFlag() {
         StringBuffer SNString = new StringBuffer();
-        SNString.append(getBit(Flags));
+        SNString.append(DataConvertUtil.getBit(Flags));
         String flagResult = SNString.toString();
         System.out.println("=to bit result=" + flagResult);
         int Encrypt = Integer.parseInt(flagResult.substring(0, 1), 2);//是否加密
@@ -175,21 +159,13 @@ public class TWManager {
         }
 
         if (LowBattery == 0) {//代表电池电量正常
-            twBeen.setLowBattery(true);
-            sendBroadCast(true);
+            twBeen.setIsLowBattery(mContext.getString(R.string.islowbattery));
         } else {//代表体温探头的电池电量低
-            twBeen.setLowBattery(false);
-            sendBroadCast(true);
+            twBeen.setIsLowBattery(mContext.getString(R.string.lowbattery));
         }
         return mInstance;
     }
 
-    private static void sendBroadCast(boolean b) {
-        Intent intent = new Intent();
-        intent.setAction("com.tw.LowBattery");
-        intent.putExtra("lowBattery", b);
-        mContext.sendBroadcast(intent);
-    }
 
     public static TWManager decodeSNandpayload() {
         if (twBeen.isEncrypt()) {
@@ -211,10 +187,9 @@ public class TWManager {
      * @return
      */
     public static TWManager parseSN() {
-//        twBeen twBeen = new twBeen();
         StringBuffer SNString = new StringBuffer();
         for (int i = 0; i < 4; i++) {
-            SNString.append(getBit(Bsns[i]));
+            SNString.append(DataConvertUtil.getBit(Bsns[i]));
         }
         String result = SNString.toString();
         System.out.println("=to bit result=" + result);
@@ -243,8 +218,8 @@ public class TWManager {
      */
     public static TWManager parsePayload() {
         Log.i("tws", "parsePayload: 数据  ： " + DataConversionUtils.byteArrayToString(Bpayload));
-        if (Bpayload.length >= 2 && dBtable.whereRunNum(twBeen.getRunningNumber())) {
-            int firstTime = Integer.parseInt(getBit(Bpayload[0]), 2);//第一个体温数据（Data1）的生存时间
+        if (Bpayload.length >= 2 && dBtable.queryRunNum(twBeen.getRunningNumber())) {
+            int firstTime = Integer.parseInt(DataConvertUtil.getBit(Bpayload[0]), 2);//第一个体温数据（Data1）的生存时间
             int interval = twBeen.getInterval();//间隔时间
             if (twBeen.getTimeUnit() == 0) {//单位 秒
                 if (firstTime * 1000 <= interval) {
@@ -262,74 +237,57 @@ public class TWManager {
             Log.i("tws", "parsePayload: " + "生存时间" + Timefirst + "    间隔：" + interval);
             TwBody body = dBtable.queryTwBody(twBeen.getRunningNumber());
             long ResultfirstTime = body.getFirstTime();//c查询最新的数据 第一个体温数据的生存时间
-            String dd = testTime(ResultfirstTime);//数据库时间
-            String cc = testTime(System.currentTimeMillis() - Timefirst);//真实第一时间
+            String shuju = DataConvertUtil.testTime(ResultfirstTime);//数据库时间
+            String zhenshi = DataConvertUtil.testTime(System.currentTimeMillis() - Timefirst);//真实第一时间
+           long ss= System.currentTimeMillis() - Timefirst;
             int twLengths = (body.getTemperatures().size());//上一次保存接受体温标签接收过多少个数据
-            Log.i("tws", "parsePayload: " + "数据库时间：" + dd + "真实时间：" + cc + "数据库长度：" + twLengths + "现实数据长度：" + Bpayload.length);
-            if ((System.currentTimeMillis() - Timefirst) > ResultfirstTime) {
+            Log.i("tws", "parsePayload: " + "数据库时间：" + shuju + "真实时间：" + zhenshi + "数据库长度：" + twLengths + "现实数据长度：" + Bpayload.length);
+            if (ss>=ResultfirstTime) {
+                dBtable.cahageData(twBeen.getRunningNumber(), System.currentTimeMillis() - Timefirst);//保存第一个体温数据的生存时间
                 List<String> Temperatures = new ArrayList();
                 List<String> twTime = new ArrayList<>();
-
-                dBtable.cahageData(twBeen.getRunningNumber(), System.currentTimeMillis() - Timefirst);//保存第一个体温数据的生存时间
                 //判断精度
                 if (twBeen.getResolution() == 0) {
                     for (int i = 1; i < Bpayload.length; i++) {
-                        if (Bpayload[i] == 0xFF || Bpayload[i] == -2 || Bpayload[i] == 0xFD) {//温度过高  温度错误  温度过低
+                        double tt = Integer.parseInt(DataConvertUtil.getBit(Bpayload[i]), 2);
+                        if (tt == 0xFF || tt == 0xFE || tt == 0xFD) {//温度过高  温度错误  温度过低
                             continue;
                         }
-                        int tt = Integer.parseInt(getBit(Bpayload[i]), 2);
                         //Temperature = 25 + DataN / 10      (当Resolution为0时)
-                        double temp = 25 + tt / 10;
-                        isHights(temp);
+                        double temp = (25 + tt / 10);
                         Temperatures.add(String.valueOf(temp));
                         twTime.add(time(i));
-
                     }
                 } else if (twBeen.getResolution() == 1) {
                     int j = 1;
                     // Temperature = 25 + DataN/ 100(当Resolution为1时)
                     for (int i = 1; i < Bpayload.length; i += 2) {
-                        j += 1;
-                        int data = DataConversionUtils.byteArrayToInt(cutBytes(Bpayload, i, 2), false);
-                        if (data == 0xFFFF || data == 0xFFFE || data == 0xFFFD) {//温度过高  温度错误  温度过低
+                        String bit = DataConvertUtil.getBit(Bpayload[i]);
+                        String bit1 = DataConvertUtil.getBit(Bpayload[i + 1]);
+                        System.out.println("bit=" + bit + " bit1=" + bit1);
+                        double tt = Integer.parseInt(bit + bit1, 2);
+                        if (tt == 0xFFFF || tt == 0xFFFE || tt == 0xFFFD) {//温度过高  温度错误  温度过低
                             continue;
                         }
-                        String bit = getBit(Bpayload[i]);
-                        String bit1 = getBit(Bpayload[i + 1]);
-                        System.out.println("bit=" + bit + " bit1=" + bit1);
-                        int tt = Integer.parseInt(bit + bit1, 2);
                         System.out.println("temp=" + tt);
                         double temp = 25 + tt / 100;
-                        isHights(temp);
                         System.out.println("temp=" + temp);
                         Temperatures.add(String.valueOf(temp));
                         twTime.add(time(j));
+                        j++;
                     }
                 }
-                //根据体温贴id（流水号）修改数据库对应的体温数据信息
-                dBtable.cahageData(twTime, Temperatures, twBeen.getRunningNumber());
+                    //根据体温贴id（流水号）修改数据库对应的体温数据信息
+                    dBtable.cahageData(twBeen.getRunningNumber(), twBeen.getModel(), twBeen.getDate(), twBeen.isEncrypt(),
+                            twBeen.getResolution(), twBeen.getInterval(), twBeen.getTimeUnit(), twBeen.getIsLowBattery(),R.drawable.pass_true, twTime, Temperatures);
             }
         }
         return mInstance;
     }
 
-    public static void isHights(double d) {
-        if (d > 37.50) {
-            boolean cc = preferencesUitl.read("thightSound", false);
-            if (cc) {
-                PlaySound.play(PlaySound.HIGHT_SOUND, PlaySound.NO_CYCLE);
-            }
-            if (preferencesUitl.read("thightShake", false)) {
-                vibrator.setVibrator();
-            }
-        }
-    }
-
-    public static TwBeen getTemperatureData() {
-        return twBeen;
-    }
 
     static long timeN = 0;
+    static int datalength;
 
     /**
      * 计算每个数据的时间间隔
@@ -338,10 +296,14 @@ public class TWManager {
      * @return
      */
     public static String time(int i) {
-
         long nowTime = System.currentTimeMillis();
-        if (Bpayload.length > 15) {
-            if (Bpayload.length - i <= 15) {
+        if (twBeen.getResolution() == 0) {
+            datalength = Bpayload.length - 1;
+        } else {
+            datalength = (Bpayload.length - 1) / 2;
+        }
+        if (datalength > 15) {
+            if (datalength - i < 14) {
                 timeN = timeN - 60000;
             } else {
                 timeN = nowTime - Timefirst - (i - 1) * twBeen.getInterval();
@@ -356,37 +318,6 @@ public class TWManager {
         return Time;
     }
 
-    /**
-     * 计算体温时间
-     *
-     * @param l
-     * @return
-     */
-    public static String testTime(long l) {
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss");
-        Date curDate = new Date(l);//获取当前时间
-        String Times = formatter.format(curDate);
-        return Times;
-    }
-
-    /**
-     * byte 转 bit
-     *
-     * @param by
-     * @return String
-     */
-    public static String getBit(byte by) {
-        StringBuffer sb = new StringBuffer();
-        sb.append((by >> 7) & 0x1)
-                .append((by >> 6) & 0x1)
-                .append((by >> 5) & 0x1)
-                .append((by >> 4) & 0x1)
-                .append((by >> 3) & 0x1)
-                .append((by >> 2) & 0x1)
-                .append((by >> 1) & 0x1)
-                .append((by >> 0) & 0x1);
-        return sb.toString();
-    }
 
     private static int getMonth(int data) {
         return (data / 31) + 1;
@@ -405,6 +336,4 @@ public class TWManager {
     private static int getYear(int year) {
         return year + 2017;
     }
-
-
 }

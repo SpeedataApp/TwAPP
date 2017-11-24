@@ -58,8 +58,14 @@ public class SharedPreferencesUitl {
         editor.putBoolean(key, value);
         editor.commit();
     }
+
     public void write(String key, int value) {
         editor.putInt(key, value);
+        editor.commit();
+    }
+
+    public void write(String key, float value) {
+        editor.putFloat(key, value);
         editor.commit();
     }
 
@@ -81,9 +87,15 @@ public class SharedPreferencesUitl {
         }
         return string;
     }
+
     public int read(String key, int defValue) {
-            return sharedPreferences.getInt(key, defValue);
+        return sharedPreferences.getInt(key, defValue);
     }
+
+    public float read(String key, float defValue) {
+        return sharedPreferences.getFloat(key, defValue);
+    }
+
     public void delete(String key) {
         editor.remove(key);
         editor.commit();
@@ -91,6 +103,7 @@ public class SharedPreferencesUitl {
 
     /**
      * 保存List
+     *
      * @param tag
      * @param datalist
      */
@@ -108,11 +121,12 @@ public class SharedPreferencesUitl {
 
     /**
      * 获取List
+     *
      * @param tag
      * @return
      */
     public <T> List<T> getDataList(String tag) {
-        List<T> datalist=new ArrayList<T>();
+        List<T> datalist = new ArrayList<T>();
         String strJson = sharedPreferences.getString(tag, null);
         if (null == strJson) {
             return datalist;

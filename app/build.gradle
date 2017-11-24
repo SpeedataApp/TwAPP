@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 26
-    buildToolsVersion "26.0.1"
+    buildToolsVersion '26.0.2'
     defaultConfig {
         applicationId "com.example.twapp"
         minSdkVersion 15
@@ -23,13 +23,12 @@ greendao {
     schemaVersion 1
 }
 
-repositories {
-    flatDir {
-        dirs 'libs'
-    }
-}
+
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
     implementation 'com.android.support:appcompat-v7:26.0.1'
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
     implementation 'com.android.support:support-v4:26.0.1'
@@ -41,7 +40,8 @@ dependencies {
     compile 'com.speedata:deivice:+'
     implementation 'org.greenrobot:eventbus:3.0.0'
     implementation 'org.greenrobot:greendao:3.2.2'
+    compile 'com.github.PhilJay:MPAndroidChart:v3.0.0'
     compile 'xyz.reginer.baseadapter:baseadapter:1.1.2'
     compile 'com.android.support:recyclerview-v7:26.0.1'
-    implementation(name: 'SwiftDecoderMobile', ext: 'aar')
+
 }

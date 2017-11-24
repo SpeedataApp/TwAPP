@@ -2,14 +2,12 @@ package com.example.twapp.control;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -30,11 +28,6 @@ import com.example.twapp.lib3.slidingmenu.SlidingMenu;
 import com.example.twapp.updateversion.UpdateVersion;
 import com.example.twapp.utils.SharedPreferencesUitl;
 
-import static com.example.twapp.R.color.huise;
-import static com.example.twapp.R.dimen;
-import static com.example.twapp.R.drawable;
-import static com.example.twapp.R.id;
-
 public class MainActivity extends FragmentActivity implements OnClickListener {
     public LoginFragment logoFragment;
     public TwHightFragment thightFragment;
@@ -50,7 +43,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
     private SlidingMenu slidingMenu;
     // 登录 的图片和文本
     private ImageView logImagview;
-    private TextView logMsage, dianliang;
+    private TextView logMsage;
     private SharedPreferencesUitl sharedPreferencesUitl;
     private long mExitTime;
 
@@ -63,12 +56,14 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
         initview();
         initFragment();
         changeFragment(homeFragment);
+        Log.i("ss", "onCreate: sssssssssssssddddddddddd");
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-
+        Log.i("ss", "onResume: dddddddddddddddddddddddd");
+//        changeFragment(homeFragment);
     }
 
     /**
@@ -80,7 +75,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
         // 全屏都可以滑动
         slidingMenu.setTouchModeAbove(SlidingMenu.LEFT);
         // 可以滑出100单位
-        slidingMenu.setBehindOffsetRes(dimen.sl);
+        slidingMenu.setBehindOffsetRes(R.dimen.sl);
         // 在当前的activity中滑动
         slidingMenu.attachToActivity(this, SlidingMenu.SLIDING_CONTENT);
         // 左侧的布局
@@ -108,7 +103,6 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
         histoFragment = new HistoFragment();
         activateFragment = new ActivateFragment();
     }
-
     /**
      * 切换的Fragment
      *
@@ -122,7 +116,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
         }
 
         getSupportFragmentManager().beginTransaction().
-                replace(id.main_layout_viewgroup, f).commit();
+                replace(R.id.main_layout_viewgroup, f).commit();
 
     }
 
@@ -137,11 +131,10 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
         aboutus = slidingMenu.findViewById(R.id.rl_aboutus);
         logImagview = slidingMenu.findViewById(R.id.frg_right_icon);
         logMsage = slidingMenu.findViewById(R.id.frg_right_logo);
-        history = slidingMenu.findViewById(id.rl_history);
+        history = slidingMenu.findViewById(R.id.rl_history);
         rllogin = slidingMenu.findViewById(R.id.relativelayout_unlogin);
-        activate = slidingMenu.findViewById(id.rl_actvite);
+        activate = slidingMenu.findViewById(R.id.rl_actvite);
         activate.setOnClickListener(this);
-        dianliang = findViewById(id.dianliang);
         rllogin.setOnClickListener(this);
         Alar.setOnClickListener(this);
         updata.setOnClickListener(this);
@@ -150,26 +143,9 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
         logImagview.setOnClickListener(this);
         logMsage.setOnClickListener(this);
         history.setOnClickListener(this);
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction("com.tw.LowBattery");
-        registerReceiver(Receiver, intentFilter);
         sharedPreferencesUitl = SharedPreferencesUitl.getInstance(this, "tw");
         isLogoOk();
     }
-
-    BroadcastReceiver Receiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals("com.tw.LowBattery")) {
-                boolean b = intent.getBooleanExtra("lowBattery", false);
-                if (b) {
-                    dianliang.setText("正常");
-                } else {
-                    dianliang.setText("过低");
-                }
-            }
-        }
-    };
 
     @Override
     protected void onPause() {
@@ -195,7 +171,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
         if (!"".equals(uname) && !"".equals(upwd)) {
             //更改 UI   textview --用户名
             logMsage.setText(uname);
-            logImagview.setImageDrawable(getDrawable(drawable.fun_share_weixin));
+            logImagview.setImageDrawable(getDrawable(R.drawable.fun_share_weixin));
         }
 
     }
@@ -207,7 +183,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
         sharedPreferencesUitl.read("name", "");
         sharedPreferencesUitl.read("upwd", "");
         logMsage.setText("立刻登陆");
-        logImagview.setImageResource(drawable.login);
+        logImagview.setImageResource(R.drawable.login);
     }
 
     @SuppressLint("ResourceAsColor")
@@ -219,40 +195,40 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
         history.setBackgroundColor(0);
         activate.setBackgroundColor(0);
         switch (v.getId()) {
-            case id.rl_actvite:
-                activate.setBackgroundColor(huise);
+            case R.id.rl_actvite:
+                activate.setBackgroundColor(R.color.huise);
                 mainTitle.setText("绑定标签");
                 changeFragment(activateFragment);
                 break;
-            case id.rl_alarm://高温报警
-                Alar.setBackgroundColor(huise);
+            case R.id.rl_alarm://高温报警
+                Alar.setBackgroundColor(R.color.huise);
                 mainTitle.setText("高温报警");
                 changeFragment(thightFragment);
                 break;
-            case id.rl_history://历史记录
+            case R.id.rl_history://历史记录
 //            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-                history.setBackgroundColor(huise);
+                history.setBackgroundColor(R.color.huise);
                 mainTitle.setText("历史记录");
                 changeFragment(histoFragment);
 //                Intent intents = new Intent(MainActivity.this, HistoryActivity.class);
 //                startActivity(intents);
                 break;
-            case id.rl_updata://软件更新
-                updata.setBackgroundColor(huise);
+            case R.id.rl_updata://软件更新
+                updata.setBackgroundColor(R.color.huise);
 //                mainTitle.setText("软件更新");
                 UpdateVersion updateVersion = new UpdateVersion(this);
                 updateVersion.startUpdate();
                 isCloseslidingMenu();
                 break;
-            case id.rl_aboutus://关于我们
-                aboutus.setBackgroundColor(huise);
+            case R.id.rl_aboutus://关于我们
+                aboutus.setBackgroundColor(R.color.huise);
                 mainTitle.setText("关于我们");
                 changeFragment(aboutUsFragment);
                 break;
-            case id.main_title_left://左按钮
+            case R.id.main_title_left://左按钮
                 isCloseslidingMenu();
                 break;
-            case id.relativelayout_unlogin://登录
+            case R.id.relativelayout_unlogin://登录
                 if (!"立刻登陆".equals(logMsage.getText().toString())) {
                     Intent intent = new Intent(MainActivity.this, UserActivity.class);
                     startActivityForResult(intent, 101);
@@ -286,7 +262,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
                 return true;
             }
             //当前Activity  fra 是哪个
-            Fragment f = getSupportFragmentManager().findFragmentById(id.main_layout_viewgroup);
+            Fragment f = getSupportFragmentManager().findFragmentById(R.id.main_layout_viewgroup);
             if (f instanceof HomeFragment) {
                 exit();
                 return true;

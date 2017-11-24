@@ -19,7 +19,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".control.LogoActivity"
+            android:name=".control.MainActivity"
             android:label="@string/app_name"
             android:launchMode="singleTop">
             <intent-filter>
@@ -29,17 +29,12 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".control.MainActivity"
-
-            android:label="@string/app_name"></activity>
+            android:name=".control.TestActivity"
+            android:label="@string/app_name" />
         <activity
             android:name=".control.UserActivity"
-            android:label="@string/app_name"></activity>
-        <activity
-            android:name=".control.HistoryActivity"
-            android:label="@string/title_activity_history"
-            android:screenOrientation="landscape"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:label="@string/app_name" />
+        <activity android:name=".control.LogoActivity"></activity>
     </application>
 
 </manifest>

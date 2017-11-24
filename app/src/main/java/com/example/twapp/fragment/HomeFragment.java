@@ -1,12 +1,12 @@
 package com.example.twapp.fragment;
 
+import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v7.widget.DividerItemDecoration;
@@ -15,10 +15,11 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.Toast;
+import android.widget.ListView;
 import android.widget.ToggleButton;
 
 import com.example.twapp.R;
@@ -27,14 +28,20 @@ import com.example.twapp.adapter.TwDatasAdapter;
 import com.example.twapp.been.PeopleInfor;
 import com.example.twapp.been.TwDataInfo;
 import com.example.twapp.db.TwBody;
+import com.example.twapp.swipe.SwipeAdapter;
+import com.example.twapp.swipe.SwipeLayoutManager;
+import com.example.twapp.utils.ChartUtils;
 import com.example.twapp.utils.ChartView;
 import com.example.twapp.utils.DBUitl;
+import com.example.twapp.utils.DialogChange;
 import com.example.twapp.utils.MyEventBus;
+import com.example.twapp.utils.PlaySound;
 import com.example.twapp.utils.ReadSerialPort;
-import com.example.twapp.utils.ScanDecode;
 import com.example.twapp.utils.SharedPreferencesUitl;
 import com.example.twapp.utils.TWManager;
 import com.example.twapp.utils.Vibrator;
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.data.Entry;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -51,23 +58,29 @@ import xyz.reginer.baseadapter.CommonRvAdapter;
  * Created by lenovo-pc on 2017/7/18.
  */
 
-public class HomeFragment extends android.support.v4.app.Fragment implements View.OnClickListener, CommonRvAdapter.OnItemClickListener {
+public class HomeFragment extends android.support.v4.app.Fragment implements CommonRvAdapter.OnItemClickListener, View.OnClickListener, SwipeAdapter.OnSwipeControlListener {
     LineChartView chartView;
     private ChartView chartViews;
     private ImageView imageStart;
-    private SharedPreferencesUitl preferencesUitl;
     private Vibrator vibrator;
     private TwDatasAdapter listAdapter;
+    private ListView listPeople;
+    private SwipeLayoutManager swipeLayoutManager;
+    private SwipeAdapter swipeAdapter;
+
+
     private PeopleAdapter infaoAdapter;
     private RecyclerView RecyclerView;
     private RecyclerView peopleList;
     private List<TwDataInfo> list = new ArrayList<>();
-    private List<PeopleInfor> inforList = new ArrayList<>();
+    private List<PeopleInfor> inforList = new ArrayList<PeopleInfor>();
     private ToggleButton toggleButton;
     private LinearLayout lyTable;
-    private ScanDecode scanDecode;
     private DBUitl dBtable;
-    private String runingNumber="";
+    private String runingNumber = "";
+    private static SharedPreferencesUitl preferencesUitl;
+    private PeopleInfor peopleInfor;
+    private boolean isFlag = true;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -75,37 +88,20 @@ public class HomeFragment extends android.support.v4.app.Fragment implements Vie
         EventBus.getDefault().register(this);
         preferencesUitl = SharedPreferencesUitl.getInstance(getActivity(), "tw");
         vibrator = new Vibrator(getActivity());
-//        scanDecode = new ScanDecode(getActivity());
-//        twManager = TWManager.getInstance(getContext());
-        IntentFilter filter = new IntentFilter();
-        filter.addAction("com.se4500.onDecodeComplete");
-        getActivity().registerReceiver(receiver, filter);
         dBtable = new DBUitl();
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction("com.update");
+        getActivity().registerReceiver(broadcastReceiver, intentFilter);
     }
 
-    BroadcastReceiver receiver = new BroadcastReceiver() {
+    BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if ("com.se4500.onDecodeComplete".equals(intent.getAction())) {
-                String ss = intent.getStringExtra("se4500");
-                Toast.makeText(context, ss, Toast.LENGTH_SHORT).show();
+            if ("com.update".equals(intent.getAction())) {
+                initInfo();
             }
         }
     };
-
-    Handler handler = new Handler();
-    Runnable runnable = new Runnable() {
-        @Override
-        public void run() {
-            handler.postDelayed(runnable, 5000);
-            parseDatas(datas2);
-        }
-    };
-
-    byte[] datas1 = {0x5A, 0x0A, (byte) 0x88, 0x04, (byte) 0xD9, 0x20, (byte) 0xDE,
-            (byte) 0xC0, (byte) 0xC7, (byte) 0xF7, 0x0D};
-    byte[] datas2 = {0x5A, 0x0b, (byte) 0x88, 0x04, (byte) 0xD9, 0x20, (byte) 0xDE,
-            0x40, 0x47, (byte) 0xC7, (byte) 0xF0, (byte) 0xB2};
 
     @Override
     public void onResume() {
@@ -113,15 +109,32 @@ public class HomeFragment extends android.support.v4.app.Fragment implements Vie
         initInfo();
     }
 
+    private List<Entry> getData(List<String> templeat) {
+        List<Entry> values = new ArrayList<>();
+        for (int i = 0; i < templeat.size(); i++) {
+            values.add(new Entry(i, Float.parseFloat(templeat.get(i))));
+        }
+        return values;
+    }
+
+    LineChart mLineChart;
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_home, container, false);
         chartView = v.findViewById(R.id.chartView);
+        mLineChart = v.findViewById(R.id.chart);
+
+        ChartUtils.initChart(mLineChart);
+
+        listPeople = v.findViewById(R.id.list_people);
+
+
         imageStart = v.findViewById(R.id.image_start);
+        imageStart.setOnClickListener(this);
         toggleButton = v.findViewById(R.id.tbtn_change);
         lyTable = v.findViewById(R.id.table);
-        imageStart.setOnClickListener(this);
         chartViews = new ChartView(chartView, getActivity());
         chartViews.onClick();
         chartViews.initZhexian();
@@ -140,21 +153,29 @@ public class HomeFragment extends android.support.v4.app.Fragment implements Vie
         RecyclerView.setAdapter(listAdapter);
         peopleList.setAdapter(infaoAdapter);
         infaoAdapter.setOnItemClickListener(this);
-
+//        listAdapter.setOnItemClickListener(this);
+        initSwipView();
         toggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if (b) {
-                    chartView.setVisibility(View.VISIBLE);
+//                    chartView.setVisibility(View.VISIBLE);
+                    mLineChart.setVisibility(View.VISIBLE);
                     lyTable.setVisibility(View.GONE);
                     if (!"".equals(runingNumber)) {
                         TwBody twBody = dBtable.queryTwBody(runingNumber);
                         if (twBody.getTemperatures() != null || twBody.getTemperatures().size() != 0) {
-                            chartViews.setKLine(twBody.getTemperatures(), twBody.getTwTime());
+                            try {
+                                ChartUtils.notifyDataSetChanged(mLineChart, twBody.getTwTime(), getData(twBody.getTemperatures()));
+//                                chartViews.setKLine(twBody.getTemperatures(), twBody.getTwTime());
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
                         }
                     }
                 } else {
-                    chartView.setVisibility(View.GONE);
+//                    chartView.setVisibility(View.GONE);
+                    mLineChart.setVisibility(View.GONE);
                     lyTable.setVisibility(View.VISIBLE);
 
                 }
@@ -163,30 +184,58 @@ public class HomeFragment extends android.support.v4.app.Fragment implements Vie
         return v;
     }
 
+    private void initSwipView() {
+        swipeLayoutManager = SwipeLayoutManager.getInstance();
+        swipeAdapter = new SwipeAdapter(getActivity(), inforList);
+
+
+        listPeople.setAdapter(swipeAdapter);
+        listPeople.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+                swipeLayoutManager.closeUnCloseSwipeLayout();
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+            }
+        });
+
+        swipeAdapter.setOnSwipeControlListener(this);
+    }
+
     private void initInfo() {
         List<TwBody> list = dBtable.queryAll();
         inforList.clear();
         for (int i = 0; i < list.size(); i++) {
-            PeopleInfor inforClass1 = new PeopleInfor(list.get(i).getRunningNumber(), list.get(i).getPeopleNun(), list.get(i).
-                    getpName(), list.get(i).getPaAge(), list.get(i).getpGender(),
-                    list.get(i).getpBedNumber(), list.get(i).getpResult());
-            inforList.add(inforClass1);
-            infaoAdapter.notifyDataSetChanged();
+            peopleInfor = new PeopleInfor(list.get(i).getRunningNumber(), list.get(i).getPeopleNun(), list.get(i).
+                    getPName(), list.get(i).getPaAge(), list.get(i).getPGender(),
+                    list.get(i).getPBedNumber(), list.get(i).getIsLowBattery(), list.get(i).getPassId());
+            inforList.add(peopleInfor);
+//            infaoAdapter.notifyDataSetChanged();
+            swipeAdapter.notifyDataSetChanged();
         }
     }
 
+    /**
+     * 接收串口数据
+     *
+     * @param myEventBus
+     */
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void getSerilportData(MyEventBus myEventBus) {
-        byte[] SerilportData = myEventBus.getTemperature();
-        parseDatas(SerilportData);
+        byte[] SerilportDatas = myEventBus.getTemperature();
+        parseDatas(SerilportDatas);
     }
 
     public void parseDatas(byte[] b) {
         if (TWManager.isValid(b)) {
             TWManager.assembleData().parseFlag().decodeSNandpayload().parseSN().parsePayload();
-        } else {
-            Toast.makeText(getActivity(), "无效数据", Toast.LENGTH_SHORT).show();
+            initInfo();
         }
+//        else {
+//            Toast.makeText(getActivity(), "无效数据", Toast.LENGTH_SHORT).show();
+//        }
     }
 
     @Override
@@ -194,52 +243,107 @@ public class HomeFragment extends android.support.v4.app.Fragment implements Vie
         super.onAttach(context);
     }
 
-    boolean isFlag = true;
-
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    @Override
-    public void onClick(View view) {
-        if (isFlag) {
-            isFlag = false;
-            imageStart.setBackground(getActivity().getDrawable(R.drawable.stop));
-            ReadSerialPort.startReader();
-//            parseDatas(datas1)；
-//            handler.postDelayed(runnable, 0);
-        } else {
-            isFlag = true;
-            imageStart.setBackground(getActivity().getDrawable(R.drawable.start));
-            ReadSerialPort.onDestroy();
-//            handler.removeCallbacks(runnable);
-//            parseDatas(datas2);
-        }
-    }
 
     @Override
     public void onItemClick(RecyclerView.ViewHolder viewHolder, View view, int position) {
         runingNumber = inforList.get(position).getRunNum();
         TwBody twBody = dBtable.queryTwBody(runingNumber);
-        if (twBody.getTemperatures() != null || twBody.getTemperatures().size() > 1) {
+        if (twBody.getTemperatures() != null) {
             list.clear();
-            int l = twBody.getTemperatures().size();
             for (int i = 0; i < twBody.getTemperatures().size(); i++) {
+                isHights(Double.parseDouble(twBody.getTemperatures().get(i)));
                 TwDataInfo twClass = new TwDataInfo();
-                twClass.setTwData(twBody.getTemperatures().get(i));
-                twClass.setTwTime(twBody.getTwTime().get(i));
-                twClass.setNum(i + 1);
+                twClass.setTwData(twBody.getTemperatures().get(i) + "");
+                twClass.setTwTime(twBody.getTwTime().get(i) + "");
+                twClass.setNum(twBody.getTemperatures().size() - i);
                 list.add(twClass);
                 listAdapter.notifyDataSetChanged();
+                ChartUtils.notifyDataSetChanged(mLineChart, twBody.getTwTime(), getData(twBody.getTemperatures()));
             }
         }
+    }
 
+    /**
+     * 高低温报警
+     *
+     * @param d
+     */
+    public void isHights(double d) {
+        if (d > preferencesUitl.read("hight", 38.0f)) {
+            boolean cc = preferencesUitl.read("thightSound", false);
+            if (cc) {
+                PlaySound.play(PlaySound.HIGHT_SOUND, PlaySound.NO_CYCLE);
+            }
+            if (preferencesUitl.read("thightShake", false)) {
+                vibrator.setVibrator();
+            }
+        } else if (d < preferencesUitl.read("low", 36.0f)) {
+            boolean cc = preferencesUitl.read("thightSound", false);
+            if (cc) {
+                PlaySound.play(PlaySound.HIGHT_SOUND, PlaySound.NO_CYCLE);
+            }
+            if (preferencesUitl.read("thightShake", false)) {
+                vibrator.setVibrator();
+            }
+        }
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         EventBus.getDefault().unregister(this);
+        getActivity().unregisterReceiver(broadcastReceiver);
         ReadSerialPort.onDestroy();
-        handler.removeCallbacks(runnable);
-        getActivity().unregisterReceiver(receiver);
     }
 
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+    @Override
+    public void onClick(View view) {
+        if (isFlag) {
+            isFlag = false;
+            dBtable.ChagePassIDs();
+            initInfo();
+            imageStart.setBackground(getActivity().getDrawable(R.drawable.stop));
+            ReadSerialPort.startReader();
+        } else {
+            isFlag = true;
+            imageStart.setBackground(getActivity().getDrawable(R.drawable.start));
+            ReadSerialPort.onDestroy();
+        }
+    }
+
+
+    @Override
+    public void onChangen(int position) {
+        DialogChange.showCustomizeDialog(getActivity(), inforList.get(position).getRunNum());
+    }
+
+    @Override
+    public void onDelete(int position) {
+        dBtable.delete(inforList.get(position).getRunNum());
+        inforList.remove(position);
+        swipeAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onItemClick(int position) {
+        runingNumber = inforList.get(position).getRunNum();
+        TwBody twBody = dBtable.queryTwBody(runingNumber);
+        if (twBody != null) {
+            if (twBody.getTemperatures() != null) {
+                list.clear();
+                for (int i = 0; i < twBody.getTemperatures().size(); i++) {
+                    isHights(Double.parseDouble(twBody.getTemperatures().get(i)));
+                    TwDataInfo twClass = new TwDataInfo();
+                    twClass.setTwData(twBody.getTemperatures().get(i) + "");
+                    twClass.setTwTime(twBody.getTwTime().get(i) + "");
+                    twClass.setNum(twBody.getTemperatures().size() - i);
+                    list.add(twClass);
+                    listAdapter.notifyDataSetChanged();
+                    ChartUtils.notifyDataSetChanged(mLineChart, twBody.getTwTime(), getData(twBody.getTemperatures()));
+                }
+            }
+        }
+    }
 }
