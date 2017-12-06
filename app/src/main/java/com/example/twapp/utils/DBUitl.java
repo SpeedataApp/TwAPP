@@ -122,7 +122,7 @@ public class DBUitl {
      */
     public void cahageData(String runNum, int Model, String Date, boolean Encrypt,
                            int Resolution, int Interval, int TimeUnit,
-                           String isLowBattery, int i, List<String> listTime, List<String> listTemperatures) {
+                           String isLowBattery, int i, List<String> listTime, List<String> listTemperatures, List<Long> listTimeLong) {
         TwBody user = mDao.queryBuilder().where(
                 TwBodyDao.Properties.RunningNumber.eq(runNum)).build().unique();
         if (user != null) {
@@ -136,6 +136,7 @@ public class DBUitl {
             user.setPassId(i);
             user.setTwTime(listTime);
             user.setTemperatures(listTemperatures);
+            user.setTwTimeLong(listTimeLong);
             mDao.update(user);
         }
     }
@@ -146,7 +147,7 @@ public class DBUitl {
      * @param runNum
      * @param time
      */
-    public void cahageData(String runNum, long time) {
+    public void cahageData(String runNum, String  time) {
 
         TwBody user = mDao.queryBuilder().where(
                 TwBodyDao.Properties.RunningNumber.eq(runNum)).build().unique();
@@ -177,7 +178,7 @@ public class DBUitl {
      */
 
 
-    public void dialogUpData(String runNum1,String runNum, String pNum, String name, String age, String gender, String bedNum) {
+    public void dialogUpData(String runNum1, String runNum, String pNum, String name, String age, String gender, String bedNum) {
 
         TwBody user = mDao.queryBuilder().where(
                 TwBodyDao.Properties.RunningNumber.eq(runNum1)).build().unique();

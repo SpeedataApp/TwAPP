@@ -298,4 +298,11 @@
 
         </RelativeLayout>
     </LinearLayout>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv_Version"
+        android:gravity="right"
+        android:layout_marginRight="10dp"
+        android:text="版本号"/>
 </LinearLayout>

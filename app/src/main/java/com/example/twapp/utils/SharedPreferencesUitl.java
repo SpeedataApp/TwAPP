@@ -54,13 +54,64 @@ public class SharedPreferencesUitl {
         return preferencesUitl;
     }
 
+    public boolean saveArrayL(String key, List<Long> list) {
+        editor.putInt(key, list.size());
+
+        for (int i = 0; i < list.size(); i++) {
+            editor.remove(key + i);
+
+            editor.putLong(key + i, list.get(i));
+        }
+        return editor.commit();
+    }
+
+    public void loadArrayL(String key, List<Long> list) {
+
+        list.clear();
+        int size = sharedPreferences.getInt(key, 0);
+        if (size == 0) {
+            list.add(0l);
+        } else {
+            for (int i = 0; i < size; i++) {
+                list.add(sharedPreferences.getLong(key + i, 0l));
+            }
+        }
+    }
+
+    public boolean saveArrayS(String key, List<String> list) {
+        editor.putInt(key, list.size());
+
+        for (int i = 0; i < list.size(); i++) {
+            editor.remove(key + i);
+
+            editor.putString(key + i, list.get(i));
+        }
+        return editor.commit();
+    }
+
+
+    public List<String> loadArrayS(String key) {
+        List<String> list = new ArrayList<>();
+        int size = sharedPreferences.getInt(key, 0);
+        for (int i = 0; i < size; i++) {
+            list.add(sharedPreferences.getString(key + i, null));
+        }
+        return list;
+    }
+
     public void write(String key, boolean value) {
         editor.putBoolean(key, value);
         editor.commit();
     }
 
+
     public void write(String key, int value) {
         editor.putInt(key, value);
+        editor.commit();
+    }
+
+    public void write(String key, long value) {
+        editor.putLong(key, value);
         editor.commit();
     }
 
@@ -76,6 +127,10 @@ public class SharedPreferencesUitl {
 
     public boolean read(String key, boolean defValue) {
         return sharedPreferences.getBoolean(key, defValue);
+    }
+
+    public long read(String key, long defValue) {
+        return sharedPreferences.getLong(key, defValue);
     }
 
     public String read(String key, String defValue) {
@@ -135,6 +190,5 @@ public class SharedPreferencesUitl {
         datalist = gson.fromJson(strJson, new TypeToken<List<T>>() {
         }.getType());
         return datalist;
-
     }
 }

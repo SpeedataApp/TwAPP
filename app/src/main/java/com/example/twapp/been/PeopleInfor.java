@@ -14,8 +14,8 @@ public class PeopleInfor {
     private String gender;
     private String bedNumber;
     private String result;
-    private String dianLiang;
     private Bitmap bitmap;
+    private String dianLiang;
     private int id;
 
     public PeopleInfor(String runNum, String peopleNum, String name, String age, String gender, String bedNumber, String dianLiang,int id) {

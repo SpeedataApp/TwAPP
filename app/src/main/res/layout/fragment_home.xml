@@ -20,15 +20,7 @@
         <ListView
             android:id="@+id/list_people"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
-
-
-
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/RecyclerView_info"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="gone" />
+            android:layout_height="match_parent" />
     </LinearLayout>
 
     <RelativeLayout
@@ -132,6 +124,7 @@
         android:id="@+id/chart"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginBottom="20dp"
         android:visibility="gone" />
 
 </LinearLayout>

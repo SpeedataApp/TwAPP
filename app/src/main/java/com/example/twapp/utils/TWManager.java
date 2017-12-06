@@ -7,6 +7,7 @@ import com.example.twapp.R;
 import com.example.twapp.db.TwBody;
 import com.speedata.libutils.DataConversionUtils;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -48,9 +49,14 @@ public class TWManager {
     private static byte[] byteData;
     private static byte[] Bsns = new byte[4];
     private static byte[] Bpayload;
-    private static long Timefirst = 0;
+    //    private static long Timefirst = 0;
     private static SharedPreferencesUitl preferencesUitl;
     private static Context mContext;
+    private static DBUitl dBtable;
+    private static TwBody body;
+    private static List<String> list;
+    private static long times = 0;
+    private static int intFlg = 0;
 
     /**
      * 单实例
@@ -65,6 +71,7 @@ public class TWManager {
             synchronized (TWManager.class) {
                 if (mInstance == null) {
                     mInstance = new TWManager();
+                    dBtable = new DBUitl();
                 }
             }
         }
@@ -131,7 +138,7 @@ public class TWManager {
         int Interval = Integer.parseInt(flagResult.substring(3, 5), 2);//发送数据的时间间隔
         int LowBattery = Integer.parseInt(flagResult.substring(5, 6), 2);//1，代表体温探头的电池电量低，应该尽快更换。如果电池电量正常，则为0。
         int Reserved = Integer.parseInt(flagResult.substring(6, 8), 2);//预留
-        Log.i("tws", "flag" + "Encrypt" + Encrypt + "Resolution" + Resolution + "TimeUnit" + TimeUnit + "Interval" + Interval
+        Log.i("tws", "flag" + "Encrypt::" + Encrypt + "Resolution::" + Resolution + "TimeUnit::" + TimeUnit + "Interval:::" + Interval
                 + "LowBattery" + LowBattery);
         if (Encrypt == 0) {//无加密
             twBeen.setEncrypt(false);
@@ -178,7 +185,6 @@ public class TWManager {
         return mInstance;
     }
 
-    static DBUitl dBtable = new DBUitl();
 
     /**
      * 组装SN数据
@@ -210,6 +216,8 @@ public class TWManager {
         return mInstance;
     }
 
+    static int length = 0;
+
     /**
      * 组装温度数据
      *
@@ -219,44 +227,51 @@ public class TWManager {
     public static TWManager parsePayload() {
         Log.i("tws", "parsePayload: 数据  ： " + DataConversionUtils.byteArrayToString(Bpayload));
         if (Bpayload.length >= 2 && dBtable.queryRunNum(twBeen.getRunningNumber())) {
-            int firstTime = Integer.parseInt(DataConvertUtil.getBit(Bpayload[0]), 2);//第一个体温数据（Data1）的生存时间
+            int first = Integer.parseInt(DataConvertUtil.getBit(Bpayload[0]), 2);//第一个体温数据（Data1）的生存时间
             int interval = twBeen.getInterval();//间隔时间
+            long NowTimes = System.currentTimeMillis();
+            intFlg = 0;
+            body = dBtable.queryTwBody(twBeen.getRunningNumber());
+            if (body.getTemperatures() != null) {
+                length = body.getTemperatures().size();
+                times = DataConvertUtil.convertTimeToLong(body.getTwTime().get(body.getTemperatures().size() - 1));
+            }
+            String ResultfirstTime = body.getFirstTime();//c查询最新的数据 第一个体温数据的生存时间
+            long Timefirst = 0;
             if (twBeen.getTimeUnit() == 0) {//单位 秒
-                if (firstTime * 1000 <= interval) {
-                    Timefirst = firstTime * 1000;
+                if (first * 1000 < interval) {
+                    Timefirst = first * 1000;
                 } else {
                     return mInstance;
                 }
-            } else {//单位 分钟
-                if (firstTime * 60 * 1000 <= interval) {
-                    Timefirst = firstTime * 60 * 1000;
+            } else if (twBeen.getTimeUnit() == 1) {//单位 分钟
+                if (first * 60000 < interval) {
+                    Timefirst = first * 60000;
                 } else {
                     return mInstance;
                 }
             }
-            Log.i("tws", "parsePayload: " + "生存时间" + Timefirst + "    间隔：" + interval);
-            TwBody body = dBtable.queryTwBody(twBeen.getRunningNumber());
-            long ResultfirstTime = body.getFirstTime();//c查询最新的数据 第一个体温数据的生存时间
-            String shuju = DataConvertUtil.testTime(ResultfirstTime);//数据库时间
-            String zhenshi = DataConvertUtil.testTime(System.currentTimeMillis() - Timefirst);//真实第一时间
-           long ss= System.currentTimeMillis() - Timefirst;
-            int twLengths = (body.getTemperatures().size());//上一次保存接受体温标签接收过多少个数据
-            Log.i("tws", "parsePayload: " + "数据库时间：" + shuju + "真实时间：" + zhenshi + "数据库长度：" + twLengths + "现实数据长度：" + Bpayload.length);
-            if (ss>=ResultfirstTime) {
-                dBtable.cahageData(twBeen.getRunningNumber(), System.currentTimeMillis() - Timefirst);//保存第一个体温数据的生存时间
+            list = new ArrayList<>();
+            Log.i("tws", "parsePayload: " + first + "生存时间" + Timefirst + "    间隔：" + interval);
+
+            long ss = (NowTimes - Timefirst) / 1000 * 1000; //去除毫秒与秒 保留分钟
+            Log.i("tws", +ss + "\n数据库时间：" + ResultfirstTime + "\n真实时间：" + DataConvertUtil.testTime(ss) + "\n系统时间" + DataConvertUtil.testTime(NowTimes) + "\n" + NowTimes);
+            if (compareNowTime(ResultfirstTime, DataConvertUtil.testTime(ss), twBeen.getTimeUnit())) {
+
                 List<String> Temperatures = new ArrayList();
                 List<String> twTime = new ArrayList<>();
+                List<Long> twTimeLong = new ArrayList<>();
                 //判断精度
                 if (twBeen.getResolution() == 0) {
-                    for (int i = 1; i < Bpayload.length; i++) {
+                    for (int i = Bpayload.length - 1; i > 0; i--) {
                         double tt = Integer.parseInt(DataConvertUtil.getBit(Bpayload[i]), 2);
-                        if (tt == 0xFF || tt == 0xFE || tt == 0xFD) {//温度过高  温度错误  温度过低
-                            continue;
-                        }
+//                        if (tt == 0xFF || tt == 0xFE || tt == 0xFD) {//温度过高  温度错误  温度过低
+//                            continue;
+//                        }
                         //Temperature = 25 + DataN / 10      (当Resolution为0时)
                         double temp = (25 + tt / 10);
                         Temperatures.add(String.valueOf(temp));
-                        twTime.add(time(i));
+                        twTime.add(time(i, Timefirst, NowTimes, ResultfirstTime));
                     }
                 } else if (twBeen.getResolution() == 1) {
                     int j = 1;
@@ -273,21 +288,80 @@ public class TWManager {
                         double temp = 25 + tt / 100;
                         System.out.println("temp=" + temp);
                         Temperatures.add(String.valueOf(temp));
-                        twTime.add(time(j));
+//                        twTime.add(time(j, Timefirst));
                         j++;
                     }
                 }
-                    //根据体温贴id（流水号）修改数据库对应的体温数据信息
-                    dBtable.cahageData(twBeen.getRunningNumber(), twBeen.getModel(), twBeen.getDate(), twBeen.isEncrypt(),
-                            twBeen.getResolution(), twBeen.getInterval(), twBeen.getTimeUnit(), twBeen.getIsLowBattery(),R.drawable.pass_true, twTime, Temperatures);
+                List<String> liststiem = new ArrayList<>();
+                List<String> liststiem2 = body.getTwTime();
+
+                List<String> list2 = body.getTemperatures();
+
+                if (liststiem2 != null) {
+                    for (int i = 0; i < list2.size(); i++) {//添加到新list 保证数据可以自增
+                        liststiem.add(liststiem2.get(i));
+                        list.add(list2.get(i));
+                    }
+                    for (int i = 0; i < twTime.size(); i++) {
+                        Log.i("qqq", "时间: " + twTime.get(i));
+                        if (compareNowTime(ResultfirstTime, twTime.get(i), 0)) {//新接收数据遍历比较数据库上一个数据时间
+                            liststiem.add(twTime.get(i));
+                            list.add(Temperatures.get(i));
+                        }
+                    }
+                } else {
+                    liststiem = twTime;
+                    list = Temperatures;
+                }
+                //根据体温贴id（流水号）修改数据库对应的体温数据信息
+                dBtable.cahageData(twBeen.getRunningNumber(), twBeen.getModel(), twBeen.getDate(), twBeen.isEncrypt(),
+                        twBeen.getResolution(), twBeen.getInterval(), twBeen.getTimeUnit(), twBeen.getIsLowBattery(),
+                        R.drawable.pass_true, liststiem, list, twTimeLong);
+
             }
         }
         return mInstance;
     }
 
+    /**
+     * 与当前时间比较早晚
+     * 需要比较的时间
+     *
+     * @return
+     */
 
-    static long timeN = 0;
-    static int datalength;
+    public static boolean compareNowTime(String shujukutime, String nowTime, int jiange) {
+        boolean isDayu = false;
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+
+        try {
+            Date parse = dateFormat.parse(shujukutime);
+            Date parse1 = dateFormat.parse(nowTime);
+
+            long diff = parse1.getTime() - parse.getTime();
+            if (jiange == 1) {
+                if (diff > 120000) {
+                    isDayu = true;
+                    dBtable.cahageData(twBeen.getRunningNumber(), nowTime);//保存第一个体温数据的生存时间
+                } else {
+                    isDayu = false;
+                }
+            } else {
+                if (diff > 0) {
+                    isDayu = true;
+                    dBtable.cahageData(twBeen.getRunningNumber(), nowTime);//保存第一个体温数据的生存时间
+                } else {
+                    isDayu = false;
+                }
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return isDayu;
+    }
+
 
     /**
      * 计算每个数据的时间间隔
@@ -295,27 +369,29 @@ public class TWManager {
      * @param i
      * @return
      */
-    public static String time(int i) {
-        long nowTime = System.currentTimeMillis();
-        if (twBeen.getResolution() == 0) {
-            datalength = Bpayload.length - 1;
+    public static String time(int i, long Timefirst, long nowTime, String s) {
+        intFlg++;
+        Log.i("ddddddddd", "dddddddddddd: " + DataConvertUtil.testTime(times));
+        if (length > 17 && Bpayload.length - 1 > 17) {
+            times = nowTime - Timefirst - (i - 1) * twBeen.getInterval();
         } else {
-            datalength = (Bpayload.length - 1) / 2;
-        }
-        if (datalength > 15) {
-            if (datalength - i < 14) {
-                timeN = timeN - 60000;
+            if (Bpayload.length - 1 > 16) {
+                if (intFlg > 16) {
+                    times = nowTime - Timefirst - (i - 1) * twBeen.getInterval();
+                    Log.i("ddddddddd", "大于十五个 " + i + "kkkk" + DataConvertUtil.testTime(times));
+                } else {
+                    if (intFlg > length) {
+                        times = times + 60000;
+                    }
+                    Log.i("ddddddddd", "前十6个 " + i + "kkkk" + DataConvertUtil.testTime(times));
+                }
             } else {
-                timeN = nowTime - Timefirst - (i - 1) * twBeen.getInterval();
+                times = nowTime - Timefirst - (i - 1) * twBeen.getInterval();
             }
-        } else {
-            timeN = nowTime - Timefirst - (i - 1) * twBeen.getInterval();
         }
-        SimpleDateFormat formatter = new SimpleDateFormat("HH:mm");
-        Date curDate = new Date(timeN);//获取当前时间
-        String Time = formatter.format(curDate);
-        Log.i("tw", "parsePayload: time " + Time);
-        return Time;
+
+
+        return DataConvertUtil.testTime(times);
     }
 
 

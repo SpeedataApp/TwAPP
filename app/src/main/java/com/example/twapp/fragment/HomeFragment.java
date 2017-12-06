@@ -20,10 +20,10 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.example.twapp.R;
-import com.example.twapp.adapter.PeopleAdapter;
 import com.example.twapp.adapter.TwDatasAdapter;
 import com.example.twapp.been.PeopleInfor;
 import com.example.twapp.been.TwDataInfo;
@@ -51,14 +51,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import lecho.lib.hellocharts.view.LineChartView;
-import xyz.reginer.baseadapter.CommonRvAdapter;
 
 
 /**
  * Created by lenovo-pc on 2017/7/18.
  */
 
-public class HomeFragment extends android.support.v4.app.Fragment implements CommonRvAdapter.OnItemClickListener, View.OnClickListener, SwipeAdapter.OnSwipeControlListener {
+public class HomeFragment extends android.support.v4.app.Fragment implements View.OnClickListener, SwipeAdapter.OnSwipeControlListener {
     LineChartView chartView;
     private ChartView chartViews;
     private ImageView imageStart;
@@ -69,9 +68,7 @@ public class HomeFragment extends android.support.v4.app.Fragment implements Com
     private SwipeAdapter swipeAdapter;
 
 
-    private PeopleAdapter infaoAdapter;
     private RecyclerView RecyclerView;
-    private RecyclerView peopleList;
     private List<TwDataInfo> list = new ArrayList<>();
     private List<PeopleInfor> inforList = new ArrayList<PeopleInfor>();
     private ToggleButton toggleButton;
@@ -125,12 +122,8 @@ public class HomeFragment extends android.support.v4.app.Fragment implements Com
         View v = inflater.inflate(R.layout.fragment_home, container, false);
         chartView = v.findViewById(R.id.chartView);
         mLineChart = v.findViewById(R.id.chart);
-
         ChartUtils.initChart(mLineChart);
-
         listPeople = v.findViewById(R.id.list_people);
-
-
         imageStart = v.findViewById(R.id.image_start);
         imageStart.setOnClickListener(this);
         toggleButton = v.findViewById(R.id.tbtn_change);
@@ -139,21 +132,13 @@ public class HomeFragment extends android.support.v4.app.Fragment implements Com
         chartViews.onClick();
         chartViews.initZhexian();
         RecyclerView = v.findViewById(R.id.recyclerview);
-        peopleList = v.findViewById(R.id.RecyclerView_info);
-        infaoAdapter = new PeopleAdapter(getActivity(), R.layout.list_item_layout_2, inforList);
         listAdapter = new TwDatasAdapter(getActivity(), R.layout.list_item_layout, list);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         RecyclerView.setLayoutManager(layoutManager);
         RecyclerView.addItemDecoration(new DividerItemDecoration(getActivity(),
                 DividerItemDecoration.VERTICAL));
-        peopleList.setLayoutManager(new LinearLayoutManager(getActivity()));
-        peopleList.addItemDecoration(new DividerItemDecoration(getActivity(),
-                DividerItemDecoration.VERTICAL));
         layoutManager.setRecycleChildrenOnDetach(true);
         RecyclerView.setAdapter(listAdapter);
-        peopleList.setAdapter(infaoAdapter);
-        infaoAdapter.setOnItemClickListener(this);
-//        listAdapter.setOnItemClickListener(this);
         initSwipView();
         toggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -164,7 +149,7 @@ public class HomeFragment extends android.support.v4.app.Fragment implements Com
                     lyTable.setVisibility(View.GONE);
                     if (!"".equals(runingNumber)) {
                         TwBody twBody = dBtable.queryTwBody(runingNumber);
-                        if (twBody.getTemperatures() != null || twBody.getTemperatures().size() != 0) {
+                        if (twBody.getTemperatures() != null) {
                             try {
                                 ChartUtils.notifyDataSetChanged(mLineChart, twBody.getTwTime(), getData(twBody.getTemperatures()));
 //                                chartViews.setKLine(twBody.getTemperatures(), twBody.getTwTime());
@@ -212,7 +197,6 @@ public class HomeFragment extends android.support.v4.app.Fragment implements Com
                     getPName(), list.get(i).getPaAge(), list.get(i).getPGender(),
                     list.get(i).getPBedNumber(), list.get(i).getIsLowBattery(), list.get(i).getPassId());
             inforList.add(peopleInfor);
-//            infaoAdapter.notifyDataSetChanged();
             swipeAdapter.notifyDataSetChanged();
         }
     }
@@ -244,31 +228,12 @@ public class HomeFragment extends android.support.v4.app.Fragment implements Com
     }
 
 
-    @Override
-    public void onItemClick(RecyclerView.ViewHolder viewHolder, View view, int position) {
-        runingNumber = inforList.get(position).getRunNum();
-        TwBody twBody = dBtable.queryTwBody(runingNumber);
-        if (twBody.getTemperatures() != null) {
-            list.clear();
-            for (int i = 0; i < twBody.getTemperatures().size(); i++) {
-                isHights(Double.parseDouble(twBody.getTemperatures().get(i)));
-                TwDataInfo twClass = new TwDataInfo();
-                twClass.setTwData(twBody.getTemperatures().get(i) + "");
-                twClass.setTwTime(twBody.getTwTime().get(i) + "");
-                twClass.setNum(twBody.getTemperatures().size() - i);
-                list.add(twClass);
-                listAdapter.notifyDataSetChanged();
-                ChartUtils.notifyDataSetChanged(mLineChart, twBody.getTwTime(), getData(twBody.getTemperatures()));
-            }
-        }
-    }
-
     /**
      * 高低温报警
      *
      * @param d
      */
-    public void isHights(double d) {
+    public void isHights(float d) {
         if (d > preferencesUitl.read("hight", 38.0f)) {
             boolean cc = preferencesUitl.read("thightSound", false);
             if (cc) {
@@ -333,16 +298,18 @@ public class HomeFragment extends android.support.v4.app.Fragment implements Com
         if (twBody != null) {
             if (twBody.getTemperatures() != null) {
                 list.clear();
-                for (int i = 0; i < twBody.getTemperatures().size(); i++) {
-                    isHights(Double.parseDouble(twBody.getTemperatures().get(i)));
+                for (int i = twBody.getTemperatures().size() - 1; i >= 0; i--) {
+                    isHights(Float.parseFloat(twBody.getTemperatures().get(i)));
                     TwDataInfo twClass = new TwDataInfo();
                     twClass.setTwData(twBody.getTemperatures().get(i) + "");
-                    twClass.setTwTime(twBody.getTwTime().get(i) + "");
-                    twClass.setNum(twBody.getTemperatures().size() - i);
+                    twClass.setTwTime(twBody.getTwTime().get(i));
+                    twClass.setNum(i);
                     list.add(twClass);
                     listAdapter.notifyDataSetChanged();
-                    ChartUtils.notifyDataSetChanged(mLineChart, twBody.getTwTime(), getData(twBody.getTemperatures()));
+//                    ChartUtils.notifyDataSetChanged(mLineChart, twBody.getTwTime(), getData(twBody.getTemperatures()));
                 }
+            } else {
+                Toast.makeText(getActivity(), "暂无数据", Toast.LENGTH_SHORT).show();
             }
         }
     }

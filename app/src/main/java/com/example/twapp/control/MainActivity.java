@@ -3,11 +3,12 @@ package com.example.twapp.control;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -56,13 +57,11 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
         initview();
         initFragment();
         changeFragment(homeFragment);
-        Log.i("ss", "onCreate: sssssssssssssddddddddddd");
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        Log.i("ss", "onResume: dddddddddddddddddddddddd");
 //        changeFragment(homeFragment);
     }
 
@@ -103,6 +102,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
         histoFragment = new HistoFragment();
         activateFragment = new ActivateFragment();
     }
+
     /**
      * 切换的Fragment
      *
@@ -134,6 +134,8 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
         history = slidingMenu.findViewById(R.id.rl_history);
         rllogin = slidingMenu.findViewById(R.id.relativelayout_unlogin);
         activate = slidingMenu.findViewById(R.id.rl_actvite);
+        TextView tvVersion = findViewById(R.id.tv_Version);
+        tvVersion.setText("版本号：" + getVersion());
         activate.setOnClickListener(this);
         rllogin.setOnClickListener(this);
         Alar.setOnClickListener(this);
@@ -286,6 +288,21 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
         } else {
             finish();
             System.exit(0);
+        }
+    }
+
+    /**
+     * 获取当前应用程序的版本号
+     */
+    public String getVersion() {
+        PackageManager pm = getPackageManager();
+        try {
+            PackageInfo packinfo = pm.getPackageInfo(getPackageName(), 0);
+            String version = packinfo.versionName;
+            return version;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+            return "版本号错误";
         }
     }
 }

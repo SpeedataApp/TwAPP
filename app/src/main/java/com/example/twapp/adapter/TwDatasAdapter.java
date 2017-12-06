@@ -28,6 +28,5 @@ public class TwDatasAdapter extends CommonRvAdapter<TwDataInfo> {
         helper.setText(R.id.tv_tw_date, item.getTwData());
         helper.setText(R.id.tv_tw_time, item.getTwTime());
         helper.setText(R.id.tv_tw_num, String.valueOf(item.getNum()));
-        helper.setText(R.id.tv_tw_num, String.valueOf(item.getNum()));
     }
 }

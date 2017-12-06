@@ -59,6 +59,7 @@ public class ActivateFragment extends Fragment implements View.OnClickListener {
 
 
     List<String> list = new ArrayList<>();
+    List<Long> listLong = new ArrayList<>();
 
     @Override
     public void onClick(View view) {
@@ -73,7 +74,7 @@ public class ActivateFragment extends Fragment implements View.OnClickListener {
                 String bednums = String.valueOf(bednum.getText());
                 if (!pnum.equals("") && !runnum.equals("") && !names.equals("") && !ages.equals("")
                         && !genders.equals("") && !bednums.equals("")) {
-                    TwBody twBody = new TwBody(pnum, names, ages, genders, bednums, runnum, 0L, R.drawable.pass_false, "", null, null);
+                    TwBody twBody = new TwBody(pnum, names, ages, genders, bednums, runnum, "1970-1-1 0:0:00", R.drawable.pass_false, "", null, null, null);
                     dBtable.insertDtata(twBody);
                     Toast.makeText(getActivity(), "绑定成功！", Toast.LENGTH_SHORT).show();
                     getActivity().getSupportFragmentManager().beginTransaction().

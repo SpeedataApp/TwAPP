@@ -84,7 +84,7 @@ public class ChartUtils {
         //设置x轴标签数
 //        xAxis.setLabelCount(5);
         xAxis.setAvoidFirstLastClipping(true);//图表将避免第一个和最后一个标签条目被减掉在图表或屏幕的边缘
-        xAxis.setLabelRotationAngle(-30f);//设置x轴标签的旋转角度
+        xAxis.setLabelRotationAngle(20f);//设置x轴标签的旋转角度
 
         //图表第一个和最后一个label数据不超出左边和右边的Y轴
         // xAxis.setAvoidFirstLastClipping(true);
@@ -317,7 +317,7 @@ public class ChartUtils {
         @Override
         public String getFormattedValue(float value, AxisBase axis) {
             int i = (int) value % mValues.size();
-            return mValues.get(i);
+            return mValues.get(i).substring(10);
         }
 
         @Override
@@ -359,6 +359,5 @@ public class ChartUtils {
         ll.setEnabled(true);
         yAxis.addLimitLine(ll);
     }
-
 
 }

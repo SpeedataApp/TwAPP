@@ -87,7 +87,7 @@ public class ReadSerialPort {
             if (bytes[bytes.length - 1] == 0x5A) {
                 return;
             } else if ((byte) bytes[i] == 0x5A) {//校验头
-                byte[] len =  DataConvertUtil.cutBytes(bytes, i + 1, 1);
+                byte[] len = DataConvertUtil.cutBytes(bytes, i + 1, 1);
                 int lens = DataConversionUtils.byteArrayToInt(len);
                 if (lens < 8 || lens > 255) {
                     continue;
@@ -96,11 +96,11 @@ public class ReadSerialPort {
                 if (i + resultLens > bytes.length) {
                     continue;
                 }
-                byte[] result =  DataConvertUtil.cutBytes(bytes, i, lens + 1);
+                byte[] result = DataConvertUtil.cutBytes(bytes, i, lens + 1);
                 if (result.length < 11) {
                     continue;
                 } else {
-                    Log.e("tws", "串口第一次过滤数据 resultBytes:" + DataConversionUtils.byteArrayToStringLog(result, resultLens));
+//                    Log.e("tws", "串口第一次过滤数据 resultBytes:" + DataConversionUtils.byteArrayToStringLog(result, resultLens));
                     EventBus.getDefault().post(new MyEventBus(result));
                     continue;
                 }

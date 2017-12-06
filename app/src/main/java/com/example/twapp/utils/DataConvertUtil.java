@@ -1,5 +1,7 @@
 package com.example.twapp.utils;
 
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -137,10 +139,58 @@ public class DataConvertUtil {
      */
 
     public static String testTime(long l) {
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss");
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
         Date curDate = new Date(l);//获取当前时间
         String Times = formatter.format(curDate);
         return Times;
     }
+
+    /**
+     * 获取两个时间的差  几分钟
+     *
+     * @param str1
+     * @param str2
+     * @return
+     */
+    public static long getDistanceMin(String str1, String str2) {
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        Date one;
+        Date two;
+        long min = 0;
+        try {
+            one = df.parse(str1);
+            two = df.parse(str2);
+            long time1 = one.getTime();
+            long time2 = two.getTime();
+            long diff;
+            diff = time1 - time2;
+            long day = diff / (24 * 60 * 60 * 1000);
+            long hour = (diff / (60 * 60 * 1000) - day * 24);
+            min = ((diff / (60 * 1000)));
+            long s = (diff / 1000 - day * 24 * 60 * 60 - hour * 60 * 60 - min * 60);
+            long ms = (diff - day * 24 * 60 * 60 * 1000 - hour * 60 * 60 * 1000
+                    - min * 60 * 1000 - s * 1000);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return min;
+    }
+    /**
+     * 转换时间日期格式字串为long型
+     *
+     * @param time 格式为：yyyy-MM-dd HH:mm的时间日期类型
+     */
+    public static Long convertTimeToLong(String time) {
+        Date date = null;
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+            date = sdf.parse(time);
+            return date.getTime();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0L;
+        }
+    }
+
 }
 
