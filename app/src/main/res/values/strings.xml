@@ -10,5 +10,6 @@
     <string name="title_activity_history">HistoryActivity</string>
     <string name="islowbattery">电量正常</string>
     <string name="lowbattery">电量过低</string>
+    <string name="about_us">关于我们</string>
 
 </resources>

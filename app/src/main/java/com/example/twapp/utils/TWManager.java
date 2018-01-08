@@ -276,19 +276,19 @@ public class TWManager {
                 } else if (twBeen.getResolution() == 1) {
                     int j = 1;
                     // Temperature = 25 + DataN/ 100(当Resolution为1时)
-                    for (int i = 1; i < Bpayload.length; i += 2) {
+                    for (int i =Bpayload.length-2; i >0 ; i -= 2) {
                         String bit = DataConvertUtil.getBit(Bpayload[i]);
                         String bit1 = DataConvertUtil.getBit(Bpayload[i + 1]);
                         System.out.println("bit=" + bit + " bit1=" + bit1);
                         double tt = Integer.parseInt(bit + bit1, 2);
-                        if (tt == 0xFFFF || tt == 0xFFFE || tt == 0xFFFD) {//温度过高  温度错误  温度过低
-                            continue;
-                        }
+//                        if (tt == 0xFFFF || tt == 0xFFFE || tt == 0xFFFD) {//温度过高  温度错误  温度过低
+//                            continue;
+//                        }
                         System.out.println("temp=" + tt);
                         double temp = 25 + tt / 100;
                         System.out.println("temp=" + temp);
                         Temperatures.add(String.valueOf(temp));
-//                        twTime.add(time(j, Timefirst));
+                        twTime.add(time(j, Timefirst, NowTimes, ResultfirstTime));
                         j++;
                     }
                 }
@@ -389,11 +389,12 @@ public class TWManager {
                 times = nowTime - Timefirst - (i - 1) * twBeen.getInterval();
             }
         }
-
-
         return DataConvertUtil.testTime(times);
     }
 
+    public static TwBody getBody() {
+        return twBeen;
+    }
 
     private static int getMonth(int data) {
         return (data / 31) + 1;

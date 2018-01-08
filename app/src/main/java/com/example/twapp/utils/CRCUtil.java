@@ -69,7 +69,8 @@ public class CRCUtil {
 
 
     public static void main(String args[]) {
-        byte tb[] = {(byte) 0xaa, (byte) 0xbb, (byte) 0xcc};
+//        byte tb[] = {(byte) 0xaa, (byte) 0xbb, (byte) 0xcc};
+        byte tb[] = {0x01, 0x00, (byte) 0xB4, 0x01, 0x01};
         byte[] temp = GetCRC(0xffff, tb);
         //result -> 6cf6
         System.out.println("" + byteArrayToStringLog(temp, temp.length));

@@ -12,6 +12,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:text="请输入病人腕带号及体温标签号进行绑定"
+        android:textColor="@color/red"
         android:textSize="20sp" />
 
     <ScrollView
@@ -58,8 +59,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:inputType="number"
-                android:hint="输入病人床号" />
+                android:hint="输入病人床号"
+                android:inputType="number" />
 
             <EditText
                 android:id="@+id/edittext_result"
@@ -74,8 +75,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:hint="输入体温标签编码"
-                android:inputType="number" />
+                android:hint="输入体温标签编码" />
 
             <Button
                 android:id="@+id/btn_activate"

@@ -13,6 +13,7 @@ import android.widget.Toast;
 import com.example.twapp.R;
 import com.example.twapp.db.TwBody;
 import com.example.twapp.utils.DBUitl;
+import com.example.twapp.utils.DataConvertUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -79,7 +80,7 @@ public class ActivateFragment extends Fragment implements View.OnClickListener {
                     Toast.makeText(getActivity(), "绑定成功！", Toast.LENGTH_SHORT).show();
                     getActivity().getSupportFragmentManager().beginTransaction().
                             replace(R.id.main_layout_viewgroup, new HomeFragment()).commit();
-
+                    DataConvertUtil.closeKeybord(pNnm,getActivity());
                 } else {
                     Toast.makeText(getActivity(), "信息不能为空！", Toast.LENGTH_SHORT).show();
                 }

@@ -73,7 +73,7 @@ public class UpdateVersion {
             try {
                 // 从资源文件获取服务器 地址
                 // http://218.247.237.138/temperature/temperature.apk</url
-                String path = "http://218.247.237.138/speedataApps/temperature/version.xml";
+                String path = "http://218.247.237.138:9002/speedataApps/temperature/version.xml";
                 // 包装成url的对象
                 URL url = new URL(path);
                 HttpURLConnection conn = (HttpURLConnection) url

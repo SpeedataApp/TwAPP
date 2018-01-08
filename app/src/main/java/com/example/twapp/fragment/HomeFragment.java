@@ -20,6 +20,7 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -42,6 +43,7 @@ import com.example.twapp.utils.TWManager;
 import com.example.twapp.utils.Vibrator;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.data.Entry;
+import com.speedata.libutils.DataConversionUtils;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -58,7 +60,8 @@ import lecho.lib.hellocharts.view.LineChartView;
  */
 
 public class HomeFragment extends android.support.v4.app.Fragment implements View.OnClickListener, SwipeAdapter.OnSwipeControlListener {
-    LineChartView chartView;
+   TextView tvFlag;
+  private  LineChartView chartView;
     private ChartView chartViews;
     private ImageView imageStart;
     private Vibrator vibrator;
@@ -78,7 +81,6 @@ public class HomeFragment extends android.support.v4.app.Fragment implements Vie
     private static SharedPreferencesUitl preferencesUitl;
     private PeopleInfor peopleInfor;
     private boolean isFlag = true;
-
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -120,7 +122,9 @@ public class HomeFragment extends android.support.v4.app.Fragment implements Vie
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_home, container, false);
+        tvFlag = v.findViewById(R.id.tv_flag);
         chartView = v.findViewById(R.id.chartView);
+
         mLineChart = v.findViewById(R.id.chart);
         ChartUtils.initChart(mLineChart);
         listPeople = v.findViewById(R.id.list_people);
@@ -173,7 +177,6 @@ public class HomeFragment extends android.support.v4.app.Fragment implements Vie
         swipeLayoutManager = SwipeLayoutManager.getInstance();
         swipeAdapter = new SwipeAdapter(getActivity(), inforList);
 
-
         listPeople.setAdapter(swipeAdapter);
         listPeople.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
@@ -216,10 +219,8 @@ public class HomeFragment extends android.support.v4.app.Fragment implements Vie
         if (TWManager.isValid(b)) {
             TWManager.assembleData().parseFlag().decodeSNandpayload().parseSN().parsePayload();
             initInfo();
+            tvFlag.setText("FLAG"+TWManager.getBody().getModel()+"-"+TWManager.getBody().getDate()+TWManager.getBody().getRunningNumber());
         }
-//        else {
-//            Toast.makeText(getActivity(), "无效数据", Toast.LENGTH_SHORT).show();
-//        }
     }
 
     @Override
@@ -266,6 +267,13 @@ public class HomeFragment extends android.support.v4.app.Fragment implements Vie
     @Override
     public void onClick(View view) {
         if (isFlag) {
+            String s = "5A17C004D9205FC0FFBFFFBFFFBFFFBFFFBFFFBFFFBFE667";
+//            byte[] s = {0x5A, 0x1B, (byte) 0xB0, 0x10, 0x67, (byte) 0x80, 0x7B, (byte) 0x80, (byte) 0xBF, (byte) 0xBF, (byte) 0xBF, (byte) 0xBF, (byte) 0xBF, (byte) 0xBF, (byte) 0xBF, (byte) 0xBF,
+//                    (byte) 0xBF, (byte) 0xBF, (byte) 0xBF, (byte) 0xBF, (byte)
+//                    0xBF, (byte) 0xBF, (byte) 0xBF, (byte) 0xBF, (byte) 0xBF, (byte) 0xBF, (byte) 0x95, 0x44};
+            if (TWManager.isValid(DataConversionUtils.HexString2Bytes(s))) {
+                TWManager.assembleData().parseFlag().decodeSNandpayload().parseSN().parsePayload();
+            }
             isFlag = false;
             dBtable.ChagePassIDs();
             initInfo();
@@ -295,22 +303,26 @@ public class HomeFragment extends android.support.v4.app.Fragment implements Vie
     public void onItemClick(int position) {
         runingNumber = inforList.get(position).getRunNum();
         TwBody twBody = dBtable.queryTwBody(runingNumber);
-        if (twBody != null) {
-            if (twBody.getTemperatures() != null) {
-                list.clear();
-                for (int i = twBody.getTemperatures().size() - 1; i >= 0; i--) {
-                    isHights(Float.parseFloat(twBody.getTemperatures().get(i)));
-                    TwDataInfo twClass = new TwDataInfo();
-                    twClass.setTwData(twBody.getTemperatures().get(i) + "");
-                    twClass.setTwTime(twBody.getTwTime().get(i));
-                    twClass.setNum(i);
-                    list.add(twClass);
-                    listAdapter.notifyDataSetChanged();
-//                    ChartUtils.notifyDataSetChanged(mLineChart, twBody.getTwTime(), getData(twBody.getTemperatures()));
+        try {
+            if (twBody != null) {
+                if (twBody.getTemperatures() != null) {
+                    list.clear();
+                    for (int i = twBody.getTemperatures().size() - 1; i >= 0; i--) {
+                        isHights(Float.parseFloat(twBody.getTemperatures().get(i)));
+                        TwDataInfo twClass = new TwDataInfo();
+                        twClass.setTwData(twBody.getTemperatures().get(i) + "");
+                        twClass.setTwTime(twBody.getTwTime().get(i));
+                        twClass.setNum(i);
+                        list.add(twClass);
+                        listAdapter.notifyDataSetChanged();
+                        //                    ChartUtils.notifyDataSetChanged(mLineChart, twBody.getTwTime(), getData(twBody.getTemperatures()));
+                    }
+                } else {
+                    Toast.makeText(getActivity(), "暂无数据", Toast.LENGTH_SHORT).show();
                 }
-            } else {
-                Toast.makeText(getActivity(), "暂无数据", Toast.LENGTH_SHORT).show();
             }
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
         }
     }
 }
