@@ -36,6 +36,14 @@
             android:textOff="切换曲线"
             android:textOn="切换表格" />
 
+        <Button
+            android:id="@+id/btn_db"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/image_start"
+            android:layout_toLeftOf="@+id/image_start"
+            android:layout_toStartOf="@+id/image_start"
+            android:text="导出DB" />
         <ImageView
             android:id="@+id/image_start"
             android:layout_width="wrap_content"

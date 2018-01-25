@@ -1,24 +1,22 @@
 package com.example.twapp.control;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.KeyEvent;
-import android.view.Window;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 
 import com.example.twapp.R;
+import com.example.twapp.base.BaseActivity;
 
-public class LogoActivity extends Activity {
+public class LogoActivity extends BaseActivity {
 
     private ImageView im;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        this.requestWindowFeature(Window.FEATURE_NO_TITLE);//去掉标题栏
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_logo);
         im = findViewById(R.id.logo_im);

@@ -7,6 +7,7 @@ public class TwDataInfo {
     public String twTime;
     public String twData;
     public int num;
+    public int runNum;
 
     public TwDataInfo(String twData, String twTime, int num) {
         this.twData = twData;
@@ -40,5 +41,23 @@ public class TwDataInfo {
 
     public void setTwTime(String twTime) {
         this.twTime = twTime;
+    }
+
+    public int getRunNum() {
+        return runNum;
+    }
+
+    public void setRunNum(int runNum) {
+        this.runNum = runNum;
+    }
+
+    @Override
+    public String toString() {
+        return "TwDataInfo{" +
+                "twTime='" + twTime + '\'' +
+                ", twData='" + twData + '\'' +
+                ", num=" + num +
+                ", runNum=" + runNum +
+                '}';
     }
 }

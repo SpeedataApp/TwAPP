@@ -1,19 +1,18 @@
 package com.example.twapp.control;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.twapp.R;
+import com.example.twapp.base.BaseActivity;
 import com.example.twapp.utils.SharedPreferencesUitl;
 
-public class UserActivity extends Activity {
+public class UserActivity extends BaseActivity {
 
     private Button btn_clear;
     private SharedPreferencesUitl sharedPreferencesUitl;
@@ -23,8 +22,6 @@ public class UserActivity extends Activity {
     @SuppressLint("NewApi")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        this.requestWindowFeature(Window.FEATURE_NO_TITLE);//去掉标题栏
-        // TODO Auto-generated method stub
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_uesr);
         sharedPreferencesUitl = SharedPreferencesUitl.getInstance(this, "tw");

@@ -21,15 +21,6 @@
             android:name=".control.LogoActivity"
             android:label="@string/app_name"
             android:launchMode="singleTop">
-            <!--<intent-filter>-->
-                <!--<action android:name="android.intent.action.MAIN" />-->
-
-                <!--<category android:name="android.intent.category.LAUNCHER" />-->
-            <!--</intent-filter>-->
-        </activity>
-        <activity
-            android:name=".control.TestActivity"
-            android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -37,11 +28,27 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".control.TestActivity"
+            android:label="@string/app_name">
+            <!--<intent-filter>-->
+            <!--<action android:name="android.intent.action.MAIN" />-->
+
+            <!--<category android:name="android.intent.category.LAUNCHER" />-->
+            <!--</intent-filter>-->
+        </activity>
+        <activity
             android:name=".control.UserActivity"
             android:label="@string/app_name" />
         <activity
             android:name=".control.MainActivity"
             android:launchMode="standard"></activity>
+        <!--友盟添加-->
+        <meta-data
+            android:name="UMENG_APPKEY"
+            android:value="5a54363aa40fa36928000012" />
+        <meta-data
+            android:name="UMENG_CHANNEL"
+            android:value="twapp" />
     </application>
 
 </manifest>

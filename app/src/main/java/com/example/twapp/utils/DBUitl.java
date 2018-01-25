@@ -4,6 +4,7 @@ import com.example.twapp.R;
 import com.example.twapp.control.TwApplication;
 import com.example.twapp.db.TwBody;
 import com.example.twapp.db.TwBodyDao;
+import com.example.twapp.db.twTimeAndDatas;
 
 import java.util.List;
 
@@ -45,6 +46,10 @@ public class DBUitl {
      */
     public void insertDtata(TwBody body) {
         mDao.insertOrReplace(body);
+    }
+
+    public void insertDtatas(twTimeAndDatas body) {
+        TwApplication.getsInstance().getDaoSession().getTwTimeAndDatasDao().insertOrReplace(body);
     }
 
     /**
@@ -147,7 +152,7 @@ public class DBUitl {
      * @param runNum
      * @param time
      */
-    public void cahageData(String runNum, String  time) {
+    public void cahageData(String runNum, String time) {
 
         TwBody user = mDao.queryBuilder().where(
                 TwBodyDao.Properties.RunningNumber.eq(runNum)).build().unique();

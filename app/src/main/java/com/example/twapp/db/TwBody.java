@@ -102,8 +102,8 @@ public class TwBody {
 
     @Generated(hash = 2022688214)
     public TwBody(Long id, String peopleNun, String pName, String paAge, String pGender, String pBedNumber,
-            String RunningNumber, String firstTime, int passId, String isLowBattery, List<String> Temperatures,
-            List<String> TwTime) {
+                  String RunningNumber, String firstTime, int passId, String isLowBattery, List<String> Temperatures,
+                  List<String> TwTime) {
         this.id = id;
         this.peopleNun = peopleNun;
         this.pName = pName;
@@ -324,4 +324,8 @@ public class TwBody {
     public void setInterval(int interval) {
         Interval = interval;
     }
+
+
+//    @ToOne
+//    private twTimeAndDatas twTimeAndDatas;
 }

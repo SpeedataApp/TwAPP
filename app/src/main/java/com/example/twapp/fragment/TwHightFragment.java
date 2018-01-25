@@ -5,12 +5,8 @@ import android.annotation.TargetApi;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
-import android.os.Bundle;
 import android.support.annotation.RequiresApi;
-import android.support.v4.app.Fragment;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -18,12 +14,13 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.twapp.R;
+import com.example.twapp.base.BaseFragment;
 import com.example.twapp.utils.PlaySound;
 import com.example.twapp.utils.SharedPreferencesUitl;
 import com.example.twapp.utils.Vibrator;
 
 
-public class TwHightFragment extends Fragment implements View.OnClickListener {
+public class TwHightFragment extends BaseFragment implements View.OnClickListener {
     private LinearLayout hightSound;
     private LinearLayout hightshake;
     private ImageView imageVibrator;
@@ -36,9 +33,9 @@ public class TwHightFragment extends Fragment implements View.OnClickListener {
     private boolean isVibrator = true;
     private boolean isSound = true;
 
+
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    protected void create() {
         preferencesUitl = SharedPreferencesUitl.getInstance(getActivity(), "tw");
         PlaySound.initSoundPool(getActivity());
         vibrator = new Vibrator(getActivity());
@@ -46,21 +43,34 @@ public class TwHightFragment extends Fragment implements View.OnClickListener {
         float low = preferencesUitl.read("hight", 36.5f);
     }
 
+    @Override
+    protected void resuem() {
+
+    }
+
+    @Override
+    protected void psuse() {
+
+    }
+
+
+    @Override
+    protected int getViewID() {
+        return R.layout.fragment_hight;
+    }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-
-        View myview = inflater.inflate(R.layout.fragment_hight, container, false);
-        hightshake = myview.findViewById(R.id.thight_shake);
-        hightSound = myview.findViewById(R.id.thight_sound);
-        imageVibrator = myview.findViewById(R.id.image_vibrator);
-        imageSound = myview.findViewById(R.id.image_sound);
-        tvSound = myview.findViewById(R.id.tv_sound);
-        tvVibrator = myview.findViewById(R.id.tv_vibrator);
-        etxHight = myview.findViewById(R.id.etx_hight);
-        etxLow = myview.findViewById(R.id.etx_low);
-        btn_save_set = myview.findViewById(R.id.btn_save_set);
+    @Override
+    protected void initView(View conteView) {
+        hightshake = conteView.findViewById(R.id.thight_shake);
+        hightSound = conteView.findViewById(R.id.thight_sound);
+        imageVibrator = conteView.findViewById(R.id.image_vibrator);
+        imageSound = conteView.findViewById(R.id.image_sound);
+        tvSound = conteView.findViewById(R.id.tv_sound);
+        tvVibrator = conteView.findViewById(R.id.tv_vibrator);
+        etxHight = conteView.findViewById(R.id.etx_hight);
+        etxLow = conteView.findViewById(R.id.etx_low);
+        btn_save_set = conteView.findViewById(R.id.btn_save_set);
         btn_save_set.setOnClickListener(this);
         hightSound.setOnClickListener(this);
         hightshake.setOnClickListener(this);
@@ -83,7 +93,11 @@ public class TwHightFragment extends Fragment implements View.OnClickListener {
             tvSound.setTextColor(Color.parseColor("#000000"));
             imageSound.setBackground(getActivity().getDrawable(R.drawable.sound_false));
         }
-        return myview;
+    }
+
+    @Override
+    protected void setListener() {
+
     }
 
     @SuppressLint("ResourceAsColor")

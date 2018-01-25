@@ -6,15 +6,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
-import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
@@ -26,6 +22,7 @@ import android.widget.ToggleButton;
 
 import com.example.twapp.R;
 import com.example.twapp.adapter.TwDatasAdapter;
+import com.example.twapp.base.BaseFragment;
 import com.example.twapp.been.PeopleInfor;
 import com.example.twapp.been.TwDataInfo;
 import com.example.twapp.db.TwBody;
@@ -35,6 +32,7 @@ import com.example.twapp.utils.ChartUtils;
 import com.example.twapp.utils.ChartView;
 import com.example.twapp.utils.DBUitl;
 import com.example.twapp.utils.DialogChange;
+import com.example.twapp.utils.ExcelUtil;
 import com.example.twapp.utils.MyEventBus;
 import com.example.twapp.utils.PlaySound;
 import com.example.twapp.utils.ReadSerialPort;
@@ -43,14 +41,15 @@ import com.example.twapp.utils.TWManager;
 import com.example.twapp.utils.Vibrator;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.data.Entry;
-import com.speedata.libutils.DataConversionUtils;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import lecho.lib.hellocharts.view.LineChartView;
 
@@ -59,9 +58,9 @@ import lecho.lib.hellocharts.view.LineChartView;
  * Created by lenovo-pc on 2017/7/18.
  */
 
-public class HomeFragment extends android.support.v4.app.Fragment implements View.OnClickListener, SwipeAdapter.OnSwipeControlListener {
-   TextView tvFlag;
-  private  LineChartView chartView;
+public class HomeFragment extends BaseFragment implements View.OnClickListener, SwipeAdapter.OnSwipeControlListener {
+    private TextView tvFlag;
+    private LineChartView chartView;
     private ChartView chartViews;
     private ImageView imageStart;
     private Vibrator vibrator;
@@ -69,8 +68,6 @@ public class HomeFragment extends android.support.v4.app.Fragment implements Vie
     private ListView listPeople;
     private SwipeLayoutManager swipeLayoutManager;
     private SwipeAdapter swipeAdapter;
-
-
     private RecyclerView RecyclerView;
     private List<TwDataInfo> list = new ArrayList<>();
     private List<PeopleInfor> inforList = new ArrayList<PeopleInfor>();
@@ -81,9 +78,9 @@ public class HomeFragment extends android.support.v4.app.Fragment implements Vie
     private static SharedPreferencesUitl preferencesUitl;
     private PeopleInfor peopleInfor;
     private boolean isFlag = true;
+
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    protected void create() {
         EventBus.getDefault().register(this);
         preferencesUitl = SharedPreferencesUitl.getInstance(getActivity(), "tw");
         vibrator = new Vibrator(getActivity());
@@ -108,34 +105,52 @@ public class HomeFragment extends android.support.v4.app.Fragment implements Vie
         initInfo();
     }
 
+    @Override
+    protected void resuem() {
+
+    }
+
+    @Override
+    protected void psuse() {
+
+    }
+
     private List<Entry> getData(List<String> templeat) {
         List<Entry> values = new ArrayList<>();
         for (int i = 0; i < templeat.size(); i++) {
-            values.add(new Entry(i, Float.parseFloat(templeat.get(i))));
+            if (templeat.get(i).equals("up") ||
+                    templeat.get(i).equals("erro")
+                    || templeat.get(i).equals("low")) {
+            } else {
+                values.add(new Entry(i, Float.parseFloat(templeat.get(i))));
+            }
         }
         return values;
     }
 
     LineChart mLineChart;
 
-    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.fragment_home, container, false);
-        tvFlag = v.findViewById(R.id.tv_flag);
-        chartView = v.findViewById(R.id.chartView);
+    protected int getViewID() {
+        return R.layout.fragment_home;
+    }
 
-        mLineChart = v.findViewById(R.id.chart);
+    @Override
+    protected void initView(View conteView) {
+        tvFlag = conteView.findViewById(R.id.tv_flag);
+        chartView = conteView.findViewById(R.id.chartView);
+
+        mLineChart = conteView.findViewById(R.id.chart);
         ChartUtils.initChart(mLineChart);
-        listPeople = v.findViewById(R.id.list_people);
-        imageStart = v.findViewById(R.id.image_start);
+        listPeople = conteView.findViewById(R.id.list_people);
+        imageStart = conteView.findViewById(R.id.image_start);
         imageStart.setOnClickListener(this);
-        toggleButton = v.findViewById(R.id.tbtn_change);
-        lyTable = v.findViewById(R.id.table);
+        toggleButton = conteView.findViewById(R.id.tbtn_change);
+        lyTable = conteView.findViewById(R.id.table);
         chartViews = new ChartView(chartView, getActivity());
         chartViews.onClick();
         chartViews.initZhexian();
-        RecyclerView = v.findViewById(R.id.recyclerview);
+        RecyclerView = conteView.findViewById(R.id.recyclerview);
         listAdapter = new TwDatasAdapter(getActivity(), R.layout.list_item_layout, list);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         RecyclerView.setLayoutManager(layoutManager);
@@ -170,7 +185,18 @@ public class HomeFragment extends android.support.v4.app.Fragment implements Vie
                 }
             }
         });
-        return v;
+
+        conteView.findViewById(R.id.btn_db).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                copyDBToSDcrad();
+            }
+        });
+    }
+
+    @Override
+    protected void setListener() {
+
     }
 
     private void initSwipView() {
@@ -219,7 +245,7 @@ public class HomeFragment extends android.support.v4.app.Fragment implements Vie
         if (TWManager.isValid(b)) {
             TWManager.assembleData().parseFlag().decodeSNandpayload().parseSN().parsePayload();
             initInfo();
-            tvFlag.setText("FLAG"+TWManager.getBody().getModel()+"-"+TWManager.getBody().getDate()+TWManager.getBody().getRunningNumber());
+            tvFlag.setText("FLAG" + TWManager.getBody().getModel() + "-" + TWManager.getBody().getDate() + TWManager.getBody().getRunningNumber());
         }
     }
 
@@ -267,13 +293,13 @@ public class HomeFragment extends android.support.v4.app.Fragment implements Vie
     @Override
     public void onClick(View view) {
         if (isFlag) {
-            String s = "5A17C004D9205FC0FFBFFFBFFFBFFFBFFFBFFFBFFFBFE667";
+//            String s = "5A17C004D9205FC0FFBFFFBFFFBFFFBFFFBFFFBFFFBFE667";
 //            byte[] s = {0x5A, 0x1B, (byte) 0xB0, 0x10, 0x67, (byte) 0x80, 0x7B, (byte) 0x80, (byte) 0xBF, (byte) 0xBF, (byte) 0xBF, (byte) 0xBF, (byte) 0xBF, (byte) 0xBF, (byte) 0xBF, (byte) 0xBF,
 //                    (byte) 0xBF, (byte) 0xBF, (byte) 0xBF, (byte) 0xBF, (byte)
 //                    0xBF, (byte) 0xBF, (byte) 0xBF, (byte) 0xBF, (byte) 0xBF, (byte) 0xBF, (byte) 0x95, 0x44};
-            if (TWManager.isValid(DataConversionUtils.HexString2Bytes(s))) {
-                TWManager.assembleData().parseFlag().decodeSNandpayload().parseSN().parsePayload();
-            }
+//            if (TWManager.isValid(DataConversionUtils.HexString2Bytes(s))) {
+//                TWManager.assembleData().parseFlag().decodeSNandpayload().parseSN().parsePayload();
+//            }
             isFlag = false;
             dBtable.ChagePassIDs();
             initInfo();
@@ -308,7 +334,12 @@ public class HomeFragment extends android.support.v4.app.Fragment implements Vie
                 if (twBody.getTemperatures() != null) {
                     list.clear();
                     for (int i = twBody.getTemperatures().size() - 1; i >= 0; i--) {
-                        isHights(Float.parseFloat(twBody.getTemperatures().get(i)));
+                        if (twBody.getTemperatures().get(i).equals("up") ||
+                                twBody.getTemperatures().get(i).equals("erro")
+                                || twBody.getTemperatures().get(i).equals("low")) {
+                        } else {
+                            isHights(Float.parseFloat(twBody.getTemperatures().get(i)));
+                        }
                         TwDataInfo twClass = new TwDataInfo();
                         twClass.setTwData(twBody.getTemperatures().get(i) + "");
                         twClass.setTwTime(twBody.getTwTime().get(i));
@@ -317,11 +348,19 @@ public class HomeFragment extends android.support.v4.app.Fragment implements Vie
                         listAdapter.notifyDataSetChanged();
                         //                    ChartUtils.notifyDataSetChanged(mLineChart, twBody.getTwTime(), getData(twBody.getTemperatures()));
                     }
+                    //导出Excel表格
+                    Map<String, String> titleMap = new LinkedHashMap<String, String>();
+                    titleMap.put("num", "编号");
+                    titleMap.put("twTime", "时间");
+                    titleMap.put("twData", "体温");
+                    ExcelUtil.excelExport(getActivity(), list, titleMap, "体温数据" + runingNumber);
                 } else {
                     Toast.makeText(getActivity(), "暂无数据", Toast.LENGTH_SHORT).show();
                 }
             }
         } catch (NumberFormatException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

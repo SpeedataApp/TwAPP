@@ -1,30 +1,30 @@
 package com.example.twapp.fragment;
 
-import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import com.example.twapp.R;
+import com.example.twapp.base.BaseFragment;
 
 
 /**
  * Created by lenovo-pc on 2017/7/17.
  */
 
-public class AboutUsFragment extends Fragment {
+public class AboutUsFragment extends BaseFragment {
     WebView webView;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    protected int getViewID() {
+        return R.layout.fragment_aboutus;
+    }
 
-        View v = inflater.inflate(R.layout.fragment_aboutus, container, false);
-        webView = (WebView) v.findViewById(R.id.webview);
+    @Override
+    protected void initView(View conteView) {
+        webView = conteView.findViewById(R.id.webview);
         webView.loadUrl("http://www.healthwear-tech.com/index.php?s=/article/lists/id/10.html");
         //启用支持javascript
         WebSettings settings = webView.getSettings();
@@ -35,6 +35,10 @@ public class AboutUsFragment extends Fragment {
         webView.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
         webView.getSettings().setSupportZoom(true);  //支持放大缩小
         webView.getSettings().setBuiltInZoomControls(true);
+    }
+
+    @Override
+    protected void setListener() {
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -53,7 +57,21 @@ public class AboutUsFragment extends Fragment {
                 return false;
             }
         });
-        return v;
+    }
+
+    @Override
+    protected void create() {
+
+    }
+
+    @Override
+    protected void resuem() {
+
+    }
+
+    @Override
+    protected void psuse() {
+
     }
 
 }

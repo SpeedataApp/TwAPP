@@ -3,22 +3,19 @@ package com.example.twapp.control;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.Window;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.twapp.R;
+import com.example.twapp.base.BaseActivity;
 import com.example.twapp.fragment.AboutUsFragment;
 import com.example.twapp.fragment.ActivateFragment;
 import com.example.twapp.fragment.HistoFragment;
@@ -29,7 +26,7 @@ import com.example.twapp.lib3.slidingmenu.SlidingMenu;
 import com.example.twapp.updateversion.UpdateVersion;
 import com.example.twapp.utils.SharedPreferencesUitl;
 
-public class MainActivity extends FragmentActivity implements OnClickListener {
+public class MainActivity extends BaseActivity implements OnClickListener {
     public LoginFragment logoFragment;
     public TwHightFragment thightFragment;
     public AboutUsFragment aboutUsFragment;
@@ -51,7 +48,6 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.requestWindowFeature(Window.FEATURE_NO_TITLE);//去掉标题栏
         setContentView(R.layout.activity_main);
         initSlidng();
         initview();
@@ -291,18 +287,5 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
         }
     }
 
-    /**
-     * 获取当前应用程序的版本号
-     */
-    public String getVersion() {
-        PackageManager pm = getPackageManager();
-        try {
-            PackageInfo packinfo = pm.getPackageInfo(getPackageName(), 0);
-            String version = packinfo.versionName;
-            return version;
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
-            return "版本号错误";
-        }
-    }
+
 }

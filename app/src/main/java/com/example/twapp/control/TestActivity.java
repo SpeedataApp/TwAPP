@@ -1,13 +1,14 @@
 package com.example.twapp.control;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.twapp.R;
+import com.example.twapp.base.BaseActivity;
 import com.example.twapp.utils.CRCUtil;
 import com.example.twapp.utils.MyEventBus;
 import com.example.twapp.utils.ReadSerialPort;
@@ -17,10 +18,12 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-public class TestActivity extends Activity {
-    TextView tvTrue, tvFalse, numtrue, numfasle, numtotal,tv;
+public class TestActivity extends BaseActivity {
+    TextView tvTrue, tvFalse, numtrue, numfasle, numtotal, tv;
     Button btn;
+    ListView listView;
     boolean isFlag = true;
+    private long start;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,12 +35,15 @@ public class TestActivity extends Activity {
         numfasle = findViewById(R.id.num_false);
         numtotal = findViewById(R.id.num_total);
         tv = findViewById(R.id.num_false2);
+        listView = findViewById(R.id.listview);
+
         btn = findViewById(R.id.start);
         EventBus.getDefault().register(this);
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (isFlag) {
+                    start = System.currentTimeMillis();
                     total = 0;
                     trues = 0;
                     falses = 0;
@@ -77,7 +83,7 @@ public class TestActivity extends Activity {
         numtotal.setText("总接收：" + (total += 1));
         if (originalData == null || originalData.length <= 2) {
             System.out.println("invalid data for len");
-            numfasle.setText("失败：" + (falses+=1));
+            numfasle.setText("失败：" + (falses += 1));
             tvFalse.setText(DataConversionUtils.byteArrayToString(originalData));
         } else if (originalData[1] + 1 != originalData.length) {
             numfasle.setText("失败：" + (falses += 1));
@@ -85,7 +91,7 @@ public class TestActivity extends Activity {
             System.out.println("invalid data for len" + (originalData[1] + 1) + " !=" + originalData.length);
         } else if (originalData[0] != 0x5A) {
             System.out.println("invalid header");
-            numfasle.setText("失败：" + (falses+=1));
+            numfasle.setText("失败：" + (falses += 1));
             tvFalse.setText(DataConversionUtils.byteArrayToString(originalData));
         } else if (DataConversionUtils.byteArrayToInt(CRCUtil.GetCRC(0xffff, cutBytes(originalData, 1, originalData.length - 1))) != 0) {
             //TODO 判断 CRC
@@ -101,8 +107,45 @@ public class TestActivity extends Activity {
             numtrue.setText("成功：" + (trues += 1));
             tvTrue.setText(DataConversionUtils.byteArrayToString(originalData));
         }
-
+//        parseDatas(originalData);
     }
+
+//    public void parseDatas(byte[] b) {
+//        if (TWManager.isValid(b)) {
+//            TWManager.assembleData().parseFlag().decodeSNandpayload().parseSN().parsePayload();
+//            initInfo();
+//        } else {
+//            falses += 1;
+//        }
+//        tvTrue.setText("正确：" + trues + "错误：" + falses + "小于10秒：" + millis1 + "大于10小于1分：" + millis2 + "大于1分：" + millis3);
+//    }
+//
+//    int millis1 = 0;
+//    int millis2 = 0;
+//    int millis3 = 0;
+//
+//    private void initInfo() {
+//        String num = TWManager.getBody().getRunningNumber();
+//        if (num.equals("130")) {
+//            trues += 1;
+//            Log.i("test", "上: "+start+"現在："+System.currentTimeMillis());
+//            if (System.currentTimeMillis() - start < 10) {
+//                millis1 += 1;
+//            }
+//            else if (System.currentTimeMillis() - start > 60000) {
+//                millis2 += 1;
+//            }
+//            else {
+//                millis3 += 1;
+//            }
+//            start = System.currentTimeMillis();
+//
+//            tvTrue.setText("正确：" + trues + "错误：" + falses + "小于10秒：" + millis1 + "大于10小于1分：" + millis2 + "大于1分：" + millis3);
+//        } else if (num.equals("128")) {
+//
+//        }
+//
+//    }
 
     /**
      * 截取数组
@@ -122,5 +165,10 @@ public class TestActivity extends Activity {
     protected void onDestroy() {
         super.onDestroy();
         EventBus.getDefault().unregister(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
     }
 }

@@ -145,12 +145,23 @@ public class DataConvertUtil {
      */
 
     public static String testTime(long l) {
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date curDate = new Date(l);//获取当前时间
         String Times = formatter.format(curDate);
         return Times;
     }
-
+    public static String testTime_mm(long l) {
+        SimpleDateFormat formatter = new SimpleDateFormat("mm");
+        Date curDate = new Date(l);//获取当前时间
+        String Times = formatter.format(curDate);
+        return Times;
+    }
+    public static String testTime_ss(long l) {
+        SimpleDateFormat formatter = new SimpleDateFormat("ss");
+        Date curDate = new Date(l);//获取当前时间
+        String Times = formatter.format(curDate);
+        return Times;
+    }
     /**
      * 获取两个时间的差  几分钟
      *
