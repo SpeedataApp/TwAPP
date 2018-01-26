@@ -165,8 +165,8 @@ public final class ExcelUtil {
                 int j = 0;
                 for (String entry : titleMap.keySet()) {
                     String method = "get" + entry.substring(0, 1).toUpperCase() + entry.substring(1);
-                    Method m = obj.getClass().getMethod(method, null);
-                    String value = m.invoke(obj, null).toString();
+                    Method m = obj.getClass().getMethod(method, (Class<?>[]) null);
+                    String value = m.invoke(obj, (Object[]) null).toString();
                     HSSFCell textcell = textRow.createCell(j);
                     textcell.setCellValue(value);
                     j++;

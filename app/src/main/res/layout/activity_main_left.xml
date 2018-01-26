@@ -300,6 +300,20 @@
                 android:textSize="18dp" />
 
         </RelativeLayout>
+
+        <LinearLayout
+            android:id="@+id/test_act"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@color/huise"
+            android:paddingTop="15dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="接收测试" />
+        </LinearLayout>
     </LinearLayout>
 
     <TextView

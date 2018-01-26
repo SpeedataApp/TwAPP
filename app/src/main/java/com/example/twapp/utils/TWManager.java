@@ -280,9 +280,10 @@ public class TWManager {
                 }
             }
             long newTime = (NowTimes - Timefirst * 1000); //最新数据的时间
-            newTime = isTimes(newTime);
+//            newTime = isTimes(newTime);//A方案
+            Log.i(TAG, "时间间隔：" + twBeen.getInterval());
             Log.i(TAG, "保存数据时间：" + ResultfirstTime + "本次最新时间：" + DataConvertUtil.testTime(newTime));
-            if (compareNowTime(ResultfirstTime, DataConvertUtil.testTime(newTime - Integer.parseInt(DataConvertUtil.testTime_ss(newTime)) * 1000), twBeen.getInterval())) {
+            if (compareNowTime(ResultfirstTime, DataConvertUtil.testTime(newTime), twBeen.getInterval())) {
                 List<String> Temperatures = new ArrayList();
                 List<String> twTime = new ArrayList<>();
                 List<Long> twTimeLong = new ArrayList<>();
@@ -367,6 +368,7 @@ public class TWManager {
         return mInstance;
     }
 
+
     /**
      * 与当前时间比较早晚
      * 需要比较的时间
@@ -419,6 +421,38 @@ public class TWManager {
                 times -= (s) * 60000;
             }
         }
+        if (body.getFirstTime().equals("1970-1-1 00:00:00")) {
+            dBtable.cahageData(twBeen.getRunningNumber(), DataConvertUtil.testTime(times));
+        }
+        return times;
+    }
+
+    public static long isTimeB(long times) {
+        try {//B方案
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            Date parse = dateFormat.parse(body.getFirstTime());
+//            long s = parse.getTime() - (Long.parseLong(DataConvertUtil.testTime_mm(parse.getTime())) * 1000);
+            long diff = times - parse.getTime();
+            Log.i(TAG, "数据库时间：" + body.getFirstTime() + "cha" + diff);
+            if (twBeen.getInterval() == 900) {
+                if (diff >= -60000 && diff < 900 * 1000) {
+                    times = times - diff;
+                    times -= Integer.parseInt(DataConvertUtil.testTime_ss(times)) * 1000;
+                    dBtable.cahageData(twBeen.getRunningNumber(), DataConvertUtil.testTime(times));
+                    Log.i(TAG, "0<t<15：" + DataConvertUtil.testTime(times) + "cha" + diff);
+                } else if (diff >= 900 * 1000 && diff < 4 * 3600000) {
+                    times = times - (diff - 900 * 1000);
+                    times -= Integer.parseInt(DataConvertUtil.testTime_ss(times)) * 1000;
+                    dBtable.cahageData(twBeen.getRunningNumber(), DataConvertUtil.testTime(times));
+                    Log.i(TAG, "15<t<4h：" + DataConvertUtil.testTime(times) + "cha" + diff);
+                }
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        if (body.getFirstTime().equals("1970-1-1 00:00:00")) {
+            dBtable.cahageData(twBeen.getRunningNumber(), DataConvertUtil.testTime(times));
+        }
         return times;
     }
 
@@ -431,33 +465,11 @@ public class TWManager {
     public static String tiemss(int i, long newTime) {
         long diff = 0;
         long times = newTime - (i - 1) * twBeen.getInterval() * 1000;
-        times -= Integer.parseInt(DataConvertUtil.testTime_ss(times)) * 1000;
-
-        times = isTimes(times);//A方案
-//        try {//B方案
-//            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//            Date parse = dateFormat.parse(body.getFirstTime());
-////            long s = parse.getTime() - (Long.parseLong(DataConvertUtil.testTime_mm(parse.getTime())) * 1000);
-//            diff = times - parse.getTime();
-// //           if (twBeen.getInterval() == 900) {
-//            if (diff > 900 * 1000 && Math.abs(diff - 900 * 1000) < 1900 * 1000 && diff > 0) {
-//                times = times - Math.abs(diff - 900 * 1000);
-//                times -= Integer.parseInt(DataConvertUtil.testTime_mm(times)) * 1000;
-//                dBtable.cahageData(twBeen.getRunningNumber(), DataConvertUtil.testTime(times));//保存第一个体温数据的生存时间
-//                Log.i("tsss", "差：" + diff + "&&&最终时间: " + DataConvertUtil.testTime(times));
-//                return DataConvertUtil.testTime(times);
-//            } else {
-//                times -= Integer.parseInt(DataConvertUtil.testTime_mm(times)) * 1000;
-//                dBtable.cahageData(twBeen.getRunningNumber(), DataConvertUtil.testTime(times));//保存第一个体温数据的生存时间
-//                Log.i("tsss", "差：" + diff + "&&&最终时间: " + DataConvertUtil.testTime(times));
-//                return DataConvertUtil.testTime(times);
-//            }
-//        } catch (ParseException e) {
-//            e.printStackTrace();
-//        }
-        Log.i(TAG, "遍历时间：" + DataConvertUtil.testTime(times));
-        dBtable.cahageData(twBeen.getRunningNumber(), DataConvertUtil.testTime(times));//保存第一个体温数据的生存时间
-        return DataConvertUtil.testTime(times);
+//        times -= Integer.parseInt(DataConvertUtil.testTime_ss(times)) * 1000;//A方案
+//        times = isTimes(times);//A方案
+        times = isTimeB(times);//b方案
+        Log.i(TAG, "遍历时间：" + DataConvertUtil.testTime(times) + "cha" + diff);
+        return DataConvertUtil.testTime(times - Integer.parseInt(DataConvertUtil.testTime_ss(times)) * 1000);
 
     }
 

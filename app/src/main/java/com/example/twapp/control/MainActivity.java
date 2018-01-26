@@ -130,6 +130,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
         history = slidingMenu.findViewById(R.id.rl_history);
         rllogin = slidingMenu.findViewById(R.id.relativelayout_unlogin);
         activate = slidingMenu.findViewById(R.id.rl_actvite);
+        slidingMenu.findViewById(R.id.test_act).setOnClickListener(this);//测试按钮
         TextView tvVersion = findViewById(R.id.tv_Version);
         tvVersion.setText("版本号：" + getVersion());
         activate.setOnClickListener(this);
@@ -234,6 +235,10 @@ public class MainActivity extends BaseActivity implements OnClickListener {
                     mainTitle.setText("用户登录");
                     changeFragment(logoFragment);
                 }
+                break;
+            case R.id.test_act:
+                Intent intent = new Intent(MainActivity.this, TestActivity.class);
+                startActivity(intent);
                 break;
         }
 
