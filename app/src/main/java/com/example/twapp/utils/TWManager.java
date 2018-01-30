@@ -283,7 +283,7 @@ public class TWManager {
 //            newTime = isTimes(newTime);//A方案
             Log.i(TAG, "时间间隔：" + twBeen.getInterval());
             Log.i(TAG, "保存数据时间：" + ResultfirstTime + "本次最新时间：" + DataConvertUtil.testTime(newTime));
-            if (compareNowTime(ResultfirstTime, DataConvertUtil.testTime(newTime), twBeen.getInterval())) {
+            if (compareNowTime(ResultfirstTime, DataConvertUtil.testTime(newTime -= Integer.parseInt(DataConvertUtil.testTime_ss(newTime)) * 1000), twBeen.getInterval())) {
                 List<String> Temperatures = new ArrayList();
                 List<String> twTime = new ArrayList<>();
                 List<Long> twTimeLong = new ArrayList<>();
@@ -391,7 +391,7 @@ public class TWManager {
                     isDayu = false;
                 }
             } else {
-                if (diff > 50000) {
+                if (diff > 0) {
                     isDayu = true;
                 } else {
                     isDayu = false;
@@ -440,7 +440,7 @@ public class TWManager {
                     times -= Integer.parseInt(DataConvertUtil.testTime_ss(times)) * 1000;
                     dBtable.cahageData(twBeen.getRunningNumber(), DataConvertUtil.testTime(times));
                     Log.i(TAG, "0<t<15：" + DataConvertUtil.testTime(times) + "cha" + diff);
-                } else if (diff >= 900 * 1000 && diff < 4 * 3600000) {
+                } else if (diff >= 900 * 1000 && diff < 12 * 3600000) {
                     times = times - (diff - 900 * 1000);
                     times -= Integer.parseInt(DataConvertUtil.testTime_ss(times)) * 1000;
                     dBtable.cahageData(twBeen.getRunningNumber(), DataConvertUtil.testTime(times));
@@ -465,9 +465,10 @@ public class TWManager {
     public static String tiemss(int i, long newTime) {
         long diff = 0;
         long times = newTime - (i - 1) * twBeen.getInterval() * 1000;
-//        times -= Integer.parseInt(DataConvertUtil.testTime_ss(times)) * 1000;//A方案
+        times -= Integer.parseInt(DataConvertUtil.testTime_ss(times)) * 1000;//A方案
 //        times = isTimes(times);//A方案
         times = isTimeB(times);//b方案
+        dBtable.cahageData(twBeen.getRunningNumber(), DataConvertUtil.testTime(times));
         Log.i(TAG, "遍历时间：" + DataConvertUtil.testTime(times) + "cha" + diff);
         return DataConvertUtil.testTime(times - Integer.parseInt(DataConvertUtil.testTime_ss(times)) * 1000);
 
