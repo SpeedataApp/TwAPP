@@ -31,8 +31,8 @@ import com.example.twapp.swipe.SwipeLayoutManager;
 import com.example.twapp.utils.ChartUtils;
 import com.example.twapp.utils.ChartView;
 import com.example.twapp.utils.DBUitl;
+import com.example.twapp.utils.DataConvertUtil;
 import com.example.twapp.utils.DialogChange;
-import com.example.twapp.utils.ExcelUtil;
 import com.example.twapp.utils.MyEventBus;
 import com.example.twapp.utils.PlaySound;
 import com.example.twapp.utils.ReadSerialPort;
@@ -47,15 +47,34 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import lecho.lib.hellocharts.view.LineChartView;
 
-
 /**
- * Created by lenovo-pc on 2017/7/18.
+ * ----------Dragon be here!----------/
+ * 　　　┏┓　　　┏┓
+ * 　　┏┛┻━━━┛┻┓
+ * 　　┃　　　　　　　┃
+ * 　　┃　　　━　　　┃
+ * 　　┃　┳┛　┗┳　┃
+ * 　　┃　　　　　　　┃
+ * 　　┃　　　┻　　　┃
+ * 　　┃　　　　　　　┃
+ * 　　┗━┓　　　┏━┛
+ * 　　　　┃　　　┃神兽保佑
+ * 　　　　┃　　　┃代码无BUG！
+ * 　　　　┃　　　┗━━━┓
+ * 　　　　┃　　　　　　　┣┓
+ * 　　　　┃　　　　　　　┏┛
+ * 　　　　┗┓┓┏━┳┓┏┛
+ * 　　　　　┃┫┫　┃┫┫
+ * 　　　　　┗┻┛　┗┻┛
+ * ━━━━━━神兽出没━━━━━━
+ *
+ * @author :孙天伟 in  2018/2/6   11:15.
+ * 联系方式:QQ:420401567
+ * 功能描述:
  */
 
 public class HomeFragment extends BaseFragment implements View.OnClickListener, SwipeAdapter.OnSwipeControlListener {
@@ -122,7 +141,13 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
                     templeat.get(i).equals("erro")
                     || templeat.get(i).equals("low")) {
             } else {
-                values.add(new Entry(i, Float.parseFloat(templeat.get(i))));
+                if (Float.parseFloat(templeat.get(i)) < 35.0) {
+                    values.add(new Entry(i, Float.parseFloat("35.0")));
+                } else if (Float.parseFloat(templeat.get(i)) > 42.0) {
+                    values.add(new Entry(i, Float.parseFloat("42.0")));
+                } else {
+                    values.add(new Entry(i, Float.parseFloat(templeat.get(i))));
+                }
             }
         }
         return values;
@@ -222,9 +247,12 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
         List<TwBody> list = dBtable.queryAll();
         inforList.clear();
         for (int i = 0; i < list.size(); i++) {
+
+
             peopleInfor = new PeopleInfor(list.get(i).getRunningNumber(), list.get(i).getPeopleNun(), list.get(i).
                     getPName(), list.get(i).getPaAge(), list.get(i).getPGender(),
                     list.get(i).getPBedNumber(), list.get(i).getIsLowBattery(), list.get(i).getPassId());
+
             inforList.add(peopleInfor);
             swipeAdapter.notifyDataSetChanged();
         }
@@ -244,8 +272,8 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
     public void parseDatas(byte[] b) {
         if (TWManager.isValid(b)) {
             TWManager.assembleData().parseFlag().decodeSNandpayload().parseSN().parsePayload();
-            initInfo();
-            tvFlag.setText("FLAG" + TWManager.getBody().getModel() + "-" + TWManager.getBody().getDate() + TWManager.getBody().getRunningNumber());
+            initInfo();//更新主界面各个 病人信息是否接受成功状态
+            tvFlag.setText(TWManager.getBody().getDate());
         }
     }
 
@@ -323,7 +351,10 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
         dBtable.delete(inforList.get(position).getRunNum());
         inforList.remove(position);
         swipeAdapter.notifyDataSetChanged();
+        runingNumber = "";
     }
+
+    private long resultTimes = 0;
 
     @Override
     public void onItemClick(int position) {
@@ -334,26 +365,86 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
                 if (twBody.getTemperatures() != null) {
                     list.clear();
                     for (int i = twBody.getTemperatures().size() - 1; i >= 0; i--) {
+                        TwDataInfo twClass = new TwDataInfo();
                         if (twBody.getTemperatures().get(i).equals("up") ||
                                 twBody.getTemperatures().get(i).equals("erro")
                                 || twBody.getTemperatures().get(i).equals("low")) {
+                            twClass.setTwData(twBody.getTemperatures().get(i) + "");
+                            twClass.setTwTime(twBody.getTwTime().get(i));
                         } else {
                             isHights(Float.parseFloat(twBody.getTemperatures().get(i)));
                         }
-                        TwDataInfo twClass = new TwDataInfo();
-                        twClass.setTwData(twBody.getTemperatures().get(i) + "");
-                        twClass.setTwTime(twBody.getTwTime().get(i));
+
+                        if (twBody.getTemperatures().size() <= 16) {
+                            twClass.setTwData(twBody.getTemperatures().get(i) + "");
+                            twClass.setTwTime(twBody.getTwTime().get(i));
+                        } else {
+                            if (DataConvertUtil.timesLong(twBody.getTwTime().get(i))
+                                    - DataConvertUtil.timesLong(twBody.getTwTime().get(i - 1)) < 14 * 60 * 1000) {
+                                twClass.setTwData(twBody.getTemperatures().get(i) + "");
+                                twClass.setTwTime(twBody.getTwTime().get(i));
+                            } else {
+                                long l = DataConvertUtil.timesLong(twBody.getTwTime().get(twBody.getTemperatures().size() - 1));
+                                int i1 = (Integer.parseInt(DataConvertUtil.testTime_mm(l)) + 7) / 15 * 15;
+                                if (i == twBody.getTemperatures().size() - 1) {
+                                    if (i1 < 10) {
+                                        resultTimes = DataConvertUtil.timesLong(DataConvertUtil.testTime_hh(l) + i1 + "0:00");
+                                        twClass.setTwTime(DataConvertUtil.testTime(resultTimes));
+                                    } else {
+                                        String longtime = DataConvertUtil.testTime_hh(l) + i1 + ":00";
+                                        resultTimes = DataConvertUtil.timesLong(longtime);
+                                        twClass.setTwTime(DataConvertUtil.testTime(resultTimes));
+                                    }
+                                } else {
+                                    twClass.setTwTime(DataConvertUtil.testTime(resultTimes -= 900 * 1000));
+                                }
+                                twClass.setTwData(twBody.getTemperatures().get(i) + "");
+                                if (DataConvertUtil.timesLong(twClass.getTwTime()) - System.currentTimeMillis() > 0) {
+                                    continue;
+                                }
+                            }
+                        }
                         twClass.setNum(i);
                         list.add(twClass);
                         listAdapter.notifyDataSetChanged();
                         //                    ChartUtils.notifyDataSetChanged(mLineChart, twBody.getTwTime(), getData(twBody.getTemperatures()));
                     }
+//                    for (int i = twBody.getTemperatures().size() - 1; i >= 0; i--) {
+//                        if (twBody.getTemperatures().get(i).equals("up") ||
+//                                twBody.getTemperatures().get(i).equals("erro")
+//                                || twBody.getTemperatures().get(i).equals("low")) {
+//                        } else {
+//                            isHights(Float.parseFloat(twBody.getTemperatures().get(i)));
+//                        }
+//                        TwDataInfo twClass = new TwDataInfo();
+//
+//                        long l = DataConvertUtil.timesLong(twBody.getTwTime().get(i));
+//                        int i1 = (Integer.parseInt(DataConvertUtil.testTime_mm(l)) + 7) / 15 * 15;
+//                        if (i1 < 10) {
+//                            twClass.setTwTime(DataConvertUtil.testTime_hh(l) + i1 + "0:00");
+//                        } else {
+//                            twClass.setTwTime(DataConvertUtil.testTime_hh(l) + i1 + ":00");
+//                        }
+//                        twClass.setTwData(twBody.getTemperatures().get(i) + "");
+////                        twClass.setTwTime(twBody.getTwTime().get(i));
+//                        if (DataConvertUtil.timesLong(twClass.getTwTime()) - System.currentTimeMillis() > 0) {
+//                            continue;
+//                        }
+//                        twClass.setNum(i);
+//                        list.add(twClass);
+//                        listAdapter.notifyDataSetChanged();
+                    ChartUtils.notifyDataSetChanged(mLineChart, twBody.getTwTime(), getData(twBody.getTemperatures()));
+//                    }
                     //导出Excel表格
-                    Map<String, String> titleMap = new LinkedHashMap<String, String>();
-                    titleMap.put("num", "编号");
-                    titleMap.put("twTime", "时间");
-                    titleMap.put("twData", "体温");
-                    ExcelUtil.excelExport(getActivity(), list, titleMap, "体温数据" + runingNumber);
+
+
+                    //***********导出数据************************
+//                    Map<String, String> titleMap = new LinkedHashMap<String, String>();
+//                    titleMap.put("num", "编号");
+//                    titleMap.put("twTime", "时间");
+//                    titleMap.put("twData", "体温");
+//                    ExcelUtil.excelExport(getActivity(), list, titleMap, "体温数据" + runingNumber);
+                    //***********导出数据************************
                 } else {
                     Toast.makeText(getActivity(), "暂无数据", Toast.LENGTH_SHORT).show();
                 }

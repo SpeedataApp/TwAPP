@@ -2,13 +2,13 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 26
-    buildToolsVersion '26.0.2'
+    buildToolsVersion '27.0.3'
     defaultConfig {
         applicationId "com.example.twapp"
         minSdkVersion 15
         targetSdkVersion 26
         versionCode 1
-        versionName "1.0.5"
+        versionName "1.0.9"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -26,7 +26,7 @@ greendao {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+    androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     implementation 'com.android.support:appcompat-v7:26.0.1'
@@ -37,13 +37,14 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.0'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.0'
     implementation files('libs/hellocharts-library-1.5.8.jar')
-    compile 'com.speedata:deivice:+'
+    implementation 'com.speedata:deivice:1.4.9'
     implementation 'org.greenrobot:eventbus:3.0.0'
     implementation 'org.greenrobot:greendao:3.2.2'
-    compile 'com.github.PhilJay:MPAndroidChart:v3.0.0'
-    compile 'xyz.reginer.baseadapter:baseadapter:1.1.2'
-    compile 'com.android.support:recyclerview-v7:26.0.1'
+    implementation 'com.github.PhilJay:MPAndroidChart:v3.0.0'
+    implementation 'xyz.reginer.baseadapter:baseadapter:1.1.2'
+    implementation 'com.android.support:recyclerview-v7:26.0.1'
     //友盟sdk添加
-    compile 'com.umeng.analytics:analytics:latest.integration'
+    implementation 'com.umeng.analytics:analytics:latest.integration'
+    //导出Excel表格
     implementation files('libs/poi-3.6-20091214.jar')
 }

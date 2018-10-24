@@ -66,7 +66,7 @@ public class TwBody {
     @Convert(columnType = String.class, converter = LongConverter.class)
     private List<Long> TwTimeLong;//温度数据时间
     //SN数据
-    @Transient
+    @Transient//不添加数据库
     private int Model;  //产品型号
     @Transient
     private String Date; //设备生产日期

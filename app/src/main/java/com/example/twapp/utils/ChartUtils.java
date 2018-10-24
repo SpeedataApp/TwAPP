@@ -95,7 +95,7 @@ public class ChartUtils {
 //        leftAxis.setLabelCount(5);
         yAxis.setStartAtZero(false);
         yAxis.setAxisMaxValue(45.0f);
-        yAxis.setAxisMinValue(25.0f);//设置轴的最小值。这样设置将不会根据提供的数据自动计算。
+        yAxis.setAxisMinValue(35.0f);//设置轴的最小值。这样设置将不会根据提供的数据自动计算。
         // 设置比例图标示，就是那个一组y的value的
         Legend mLegend = mLineChart.getLegend();
         mLegend.setEnabled(false);
@@ -106,78 +106,6 @@ public class ChartUtils {
         mLineChart.invalidate();
         return mLineChart;
     }
-
-
-//        public static LineChart initChart(LineChart chart) {
-//            // 不显示数据描述
-//            chart.getDescription().setEnabled(false);
-//            // 没有数据的时候，显示“暂无数据”
-//            chart.setNoDataText("暂无数据");
-//            // 不显示表格颜色
-//            chart.setDrawGridBackground(false);
-//            // 不可以缩放
-//            chart.setScaleEnabled(true);
-//            // 不显示y轴右边的值
-//            chart.getAxisRight().setEnabled(false);
-//            // 触摸
-//            chart.setTouchEnabled(true);
-////        // 拖拽
-//            chart.setDragEnabled(true);
-//            chart.setExtraLeftOffset(-15);
-//            chart.setDoubleTapToZoomEnabled(false);
-//            chart.setPinchZoom(true);
-//            //缩放第一种方式
-////        Matrix matrix = new Matrix();
-//////        //1f代表不缩放
-////        matrix.postScale(3f, 1f);
-////        chart.getViewPortHandler().refresh(matrix, chart, false);
-////        //重设所有缩放和拖动，使图表完全适合它的边界（完全缩小）。
-////        chart.fitScreen();
-////        //缩放第二种方式
-////        chart.getViewPortHandler().getMatrixTouch().postScale(2f, 1f);
-//            // 不显示图例
-//            Legend legend = chart.getLegend();
-//            legend.setEnabled(false);
-//            // 向左偏移15dp，抵消y轴向右偏移的30dp
-//
-//            XAxis xAxis = chart.getXAxis();
-//            // 不显示x轴
-//            xAxis.setDrawAxisLine(true);
-//            xAxis.setDrawGridLines(false);
-//            // 设置x轴数据的位置
-//            xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-//            xAxis.setTextColor(Color.BLACK);
-//            xAxis.setTextSize(12);
-////        xAxis.setLabelCount(5);
-////        xAxis.setGranularity(0);
-////        xAxis.setAvoidFirstLastClipping(true);
-////        xAxis.setGridColor(Color.parseColor("#30FFFFFF"));
-//            // 设置x轴数据偏移量
-////        xAxis.setYOffset(-12);
-//
-//            yAxis = chart.getAxisLeft();
-//            // 不显示y轴
-//            yAxis.setDrawAxisLine(true);
-//            // 设置y轴数据的位置
-//            yAxis.setPosition(YAxis.YAxisLabelPosition.OUTSIDE_CHART);
-//            // 不从y轴发出横向直线
-//            yAxis.setDrawGridLines(false);
-//            yAxis.setTextColor(Color.BLACK);
-//            yAxis.setTextSize(12);
-//            // 设置y轴数据偏移量
-//            yAxis.setXOffset(15);
-//            yAxis.setYOffset(-3);
-//            yAxis.setAxisMinimum(0);
-//            yAxis.setGranularity(1);//设置Y轴最小间隔
-//            yAxis.setLabelCount(5);
-//            yAxis.setDrawZeroLine(false);
-//            yAxis.setStartAtZero(false);
-//            yAxis.setAxisMaxValue(45);
-//            yAxis.setAxisMinValue(25);//设置轴的最小值。这样设置将不会根据提供的数据自动计算。
-//            setHIGHTLine("低热", 35.7f, Color.GREEN);
-//            chart.invalidate();
-//            return chart;
-//        }
 
     private static YAxis yAxis;
 
@@ -203,9 +131,9 @@ public class ChartUtils {
             for (int i = 0; i < values.size(); i++) {
                 Entry entry = values.get(i);
                 // 低热37.3~38℃（99.1~100.4F）
-//        中等热38.1~39℃（100.6~102.2F）
-//        高热39.1~41℃（102.4~105.8F）
-//        超高热41℃（105.8F）及以上
+                // 中等热38.1~39℃（100.6~102.2F）
+                // 高热39.1~41℃（102.4~105.8F）
+                // 超高热41℃（105.8F）及以上
                 if (entry.getY() > 37.2f) {
                     setHIGHTLine("低热", 37.3f, Color.parseColor("#FFC125"));
                     if (entry.getY() > 38.1f) {
@@ -222,46 +150,34 @@ public class ChartUtils {
             // 用y轴的集合来设置参数
             // 线宽
             lineDataSet.setLineWidth(1.5f);
-
             // 显示的圆形大小
             lineDataSet.setCircleSize(3.0f);
-
             // 折线的颜色
             lineDataSet.setColor(Color.DKGRAY);
-
             // 圆球的颜色
             lineDataSet.setCircleColor(Color.BLUE);
-
             // 设置mLineDataSet.setDrawHighlightIndicators(false)后，
             // Highlight的十字交叉的纵横线将不会显示，
             // 同时，lineDataSet.setHighLightColor(Color.CYAN)失效。
             lineDataSet.setDrawHighlightIndicators(true);
             // 按击后，十字交叉线的颜色
             lineDataSet.setHighLightColor(Color.CYAN);
-
             // 设置这项上显示的数据点的字体大小。
             lineDataSet.setValueTextSize(10.0f);
-
             lineDataSet.setDrawCircleHole(true);
-
             // 默认是直线
             // 曲线的平滑度，值越大越平滑。
             lineDataSet.setCubicIntensity(0.2f);
-
             // 填充曲线下方的区域，红色，半透明。
-//        lineDataSet.setDrawFilled(true);
-//        lineDataSet.setFillAlpha(128);
-//        lineDataSet.setFillColor(Color.RED);
-
-
+            //        lineDataSet.setDrawFilled(true);
+            //        lineDataSet.setFillAlpha(128);
+            //        lineDataSet.setFillColor(Color.RED);
             // 填充折线上数据点、圆球里面包裹的中心空白处的颜色。
             lineDataSet.setCircleColorHole(Color.YELLOW);
             lineDataSet.setDrawValues(true);
-//            // 不显示定位线
-//            lineDataSet.setHighlightEnabled(false);
-
+            // 不显示定位线
+            // lineDataSet.setHighlightEnabled(false);
             LineData data = new LineData(lineDataSet);
-
             chart.setData(data);
             chart.setVisibleXRangeMaximum(5.0f);//设置x轴最多显示数据条数，（要在设置数据源后调用，否则是无效的）
             chart.invalidate();
@@ -332,14 +248,11 @@ public class ChartUtils {
      * @return x轴数据
      */
     private static String[] xValuesProcess(List<String> times) {
-
-
         String[] dayValues = new String[times.size()];
         for (int i = 0; i < dayValues.length; i++) {
             dayValues[i] = times.get(i);
         }
         return dayValues;
-
     }
 
     /**
@@ -359,5 +272,4 @@ public class ChartUtils {
         ll.setEnabled(true);
         yAxis.addLimitLine(ll);
     }
-
 }

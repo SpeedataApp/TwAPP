@@ -150,18 +150,39 @@ public class DataConvertUtil {
         String Times = formatter.format(curDate);
         return Times;
     }
+
     public static String testTime_mm(long l) {
         SimpleDateFormat formatter = new SimpleDateFormat("mm");
         Date curDate = new Date(l);//获取当前时间
         String Times = formatter.format(curDate);
         return Times;
     }
+
+    public static String testTime_hh(long l) {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:");
+        Date curDate = new Date(l);//获取当前时间
+        String Times = formatter.format(curDate);
+        return Times;
+    }
+
     public static String testTime_ss(long l) {
         SimpleDateFormat formatter = new SimpleDateFormat("ss");
         Date curDate = new Date(l);//获取当前时间
         String Times = formatter.format(curDate);
         return Times;
     }
+
+    public static long timesLong(String t) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date parse = null;
+        try {
+            parse = dateFormat.parse(t);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return parse.getTime();
+    }
+
     /**
      * 获取两个时间的差  几分钟
      *
@@ -192,6 +213,7 @@ public class DataConvertUtil {
         }
         return min;
     }
+
     /**
      * 转换时间日期格式字串为long型
      *
@@ -208,6 +230,7 @@ public class DataConvertUtil {
             return 0L;
         }
     }
+
     /**
      * 打开软键盘
      *
@@ -224,7 +247,6 @@ public class DataConvertUtil {
 
     /**
      * 关闭软键盘
-     *
      */
     public static void closeKeybord(EditText mEditText, Context mContext) {
         InputMethodManager imm = (InputMethodManager) mContext
@@ -253,5 +275,54 @@ public class DataConvertUtil {
         return false;
     }
 
+    /**
+     * 体温贴标签sn转换方法
+     *
+     * @param SN
+     */
+    public static void SNToDisplayFormat(int SN) {
+        long Model, Year, Month, Day, DayOfYear, RunningNumber;
+        long LSN = 0;
+
+        //SN=0xFFFFFFFF;
+//        System.out.println(String.format("%d", SN));
+        if (SN < 0) {
+            LSN = SN + 0x100000000L;
+        } else {
+            LSN = SN;
+        }
+//        System.out.println(String.format("%d", LSN));
+
+        DayOfYear = (LSN & 0x0FF8000L) >>> 15;
+        Model = (LSN & 0xF0000000L) >>> 28;
+        Year = ((LSN & 0x0F000000L) >>> 24) + 17;
+        Month = DayOfYear / 31 + 1;
+        Day = DayOfYear - (DayOfYear / 31) * 31;
+        RunningNumber = (LSN & 0x00007FFFL);
+
+        System.out.println(String.format("Serial Number: FLG%02d-%02d%02d%02d%05d\r\n", Model, Year, Month, Day, RunningNumber));
+    }
+
+    /**
+     * 体温贴标签sn转换方法
+     *
+     * @param Display
+     */
+    public static void DisplayFormatToSn(String Display) {
+        long Model, Year, Month, Day, RunningNumber, DayOfYear, SN;
+
+        Model = Long.parseLong(Display.substring(3, 5));
+        Year = Long.parseLong(Display.substring(6, 8));
+        Month = Long.parseLong(Display.substring(8, 10));
+        Day = Long.parseLong(Display.substring(10, 12));
+        RunningNumber = Long.parseLong(Display.substring(12, 17));
+
+        //System.out.println(" " + Model + " " + Year + " " + Month + " " + Day + " " + RunningNumber);
+
+        DayOfYear = (Month - 1) * 31 + Day;
+        SN = (Model << 28) | ((Year - 17) << 24) | (DayOfYear << 15) | RunningNumber;
+
+        System.out.println(String.format("SN: 0x%08X\r\n", SN));
+    }
 }
 

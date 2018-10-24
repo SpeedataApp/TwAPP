@@ -1,5 +1,6 @@
 package com.example.twapp.utils;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.Log;
 
@@ -40,9 +41,8 @@ import java.util.List;
  */
 
 public class TWManager {
-    public static TWManager mInstance;
-    private static byte Marker = 0x5A;
-    private static byte Len;
+    @SuppressLint("StaticFieldLeak")
+    private static TWManager mInstance;
     private static byte Flags;
     private static byte[] SNs;
     private static byte[] Payload;
@@ -51,6 +51,7 @@ public class TWManager {
     private static byte[] Bpayload;
     //    private static long Timefirst = 0;
     private static SharedPreferencesUitl preferencesUitl;
+    @SuppressLint("StaticFieldLeak")
     private static Context mContext;
     private static DBUitl dBtable;
     private static TwBody body;
@@ -87,13 +88,14 @@ public class TWManager {
      */
     public static boolean isValid(byte[] originalData) {
         byteData = originalData;
+        byte marker = 0x5A;
         if (originalData == null || originalData.length <= 2) {
             System.out.println("invalid data for len");
             return false;
         } else if (originalData[1] + 1 != originalData.length) {
             System.out.println("invalid data for len" + (originalData[1] + 1) + " !=" + originalData.length);
             return false;
-        } else if (originalData[0] != Marker) {
+        } else if (originalData[0] != marker) {
             System.out.println("invalid header");
             return false;
         } else if (DataConversionUtils.byteArrayToInt(CRCUtil.GetCRC(0xffff, DataConvertUtil.cutBytes(originalData, 1, originalData.length - 1))) != 0) {
@@ -116,11 +118,11 @@ public class TWManager {
      * @return
      */
     public static TWManager assembleData() {
-        Len = byteData[1]; //长度 1字节
+        byte len = byteData[1];
         Flags = byteData[2];////标识  1字节
         SNs = DataConvertUtil.cutBytes(byteData, 3, 4);//设备id 4字节
-        Payload = DataConvertUtil.cutBytes(byteData, 7, Len - 8);
-        Bpayload = new byte[Len - 8];
+        Payload = DataConvertUtil.cutBytes(byteData, 7, len - 8);
+        Bpayload = new byte[len - 8];
         return mInstance;
     }
 
@@ -206,14 +208,40 @@ public class TWManager {
         String model = result.substring(0, 4);
         Log.i("tws", "parseSN: " + result + "#" + year + "#" + day + "#" + model);
         Log.i("tws", "parseSN: " + "runnum:" + Integer.parseInt(runNum, 2));
+        int num = Integer.parseInt(runNum, 2);
         twBeen.setRunningNumber(Integer.parseInt(runNum, 2) + "");//流水号
         int i_day = Integer.parseInt(day, 2);
         int i_year = Integer.parseInt(year, 2);
-        twBeen.setDate(getYear(i_year) + "." + getMonth(i_day) + "." + getDay(i_day));
+        String t_day = "";
+        String t_mouth = "";
+        String t_modle = "";
+        String t_runNums = "";
+        if (getMonth(i_day) < 10) {
+            t_mouth = "0" + getMonth(i_day);
+        } else {
+            t_mouth = "" + getMonth(i_day);
+        }
+        if (getDay(i_day) < 10) {
+            t_day = "0" + getDay(i_day);
+        } else {
+            t_day = getDay(i_day) + "";
+        }
         Log.i("tw", "date: " + getYear(i_year) + "." + getMonth(i_day) + "." + getDay(i_day));
         int i_model = Integer.parseInt(model, 2);
         System.out.println("model:" + i_model);
         twBeen.setModel(i_model);
+        if (i_model < 10) {
+            t_modle = "0" + i_model;
+        } else {
+            t_modle = i_model + "";
+        }
+        if (num < 1000) {
+            t_runNums = "0" + num;
+        } else {
+            t_runNums = "" + num;
+        }
+        twBeen.setDate("FLG" + t_modle + "-" + getYear(i_year) + t_mouth + t_day + t_runNums);
+
         System.out.println(twBeen);
         return mInstance;
     }
@@ -283,7 +311,8 @@ public class TWManager {
 //            newTime = isTimes(newTime);//A方案
             Log.i(TAG, "时间间隔：" + twBeen.getInterval());
             Log.i(TAG, "保存数据时间：" + ResultfirstTime + "本次最新时间：" + DataConvertUtil.testTime(newTime));
-            if (compareNowTime(ResultfirstTime, DataConvertUtil.testTime(newTime -= Integer.parseInt(DataConvertUtil.testTime_ss(newTime)) * 1000), twBeen.getInterval())) {
+//            newTime -= Integer.parseInt(DataConvertUtil.testTime_ss(newTime)) * 1000
+            if (compareNowTime(ResultfirstTime, DataConvertUtil.testTime(newTime), twBeen.getInterval())) {
                 List<String> Temperatures = new ArrayList();
                 List<String> twTime = new ArrayList<>();
                 List<Long> twTimeLong = new ArrayList<>();
@@ -291,13 +320,13 @@ public class TWManager {
                 if (twBeen.getResolution() == 0) {
                     for (int i = Bpayload.length - 1; i > 0; i--) {
                         double tt = Integer.parseInt(DataConvertUtil.getBit(Bpayload[i]), 2);
-                        if (Bpayload[i] == (byte) 0xFF) {//温度过高
+                        if (Bpayload[i] == (byte) 0xCB) {//温度过高
                             Temperatures.add("up");
                             twTime.add(tiemss(i, newTime));
-                        } else if (Bpayload[i] == (byte) 0xFE) {//温度过低
+                        } else if (Bpayload[i] == (byte) 0xCA) {//温度过低
                             Temperatures.add("low");
                             twTime.add(tiemss(i, newTime));
-                        } else if (Bpayload[i] == (byte) 0xFD) {// 温度错误
+                        } else if (Bpayload[i] == (byte) 0xC9) {// 温度错误
                             Temperatures.add("erro");
                             twTime.add(tiemss(i, newTime));
                         } else {
@@ -315,13 +344,13 @@ public class TWManager {
                         String bit1 = DataConvertUtil.getBit(Bpayload[i + 1]);
                         System.out.println("bit=" + bit + " bit1=" + bit1);
                         double tt = Integer.parseInt(bit + bit1, 2);
-                        if ((byte) Integer.parseInt(bit + bit1, 2) == (byte) 0xFFFF) {//温度过高
+                        if ((byte) Integer.parseInt(bit + bit1, 2) == (byte) 0x07D3) {//温度过高
                             Temperatures.add("up");
                             twTime.add(tiemss(i, newTime));
-                        } else if ((byte) Integer.parseInt(bit + bit1, 2) == (byte) 0xFFFE) {//温度过低
+                        } else if ((byte) Integer.parseInt(bit + bit1, 2) == (byte) 0x07D2) {//温度过低
                             Temperatures.add("low");
                             twTime.add(tiemss(i, newTime));
-                        } else if ((byte) Integer.parseInt(bit + bit1, 2) == (byte) 0xFFFD) {// 温度错误
+                        } else if ((byte) Integer.parseInt(bit + bit1, 2) == (byte) 0x07D1) {// 温度错误
                             Temperatures.add("erro");
                             twTime.add(tiemss(i, newTime));
                         } else {
@@ -357,7 +386,7 @@ public class TWManager {
                 //根据体温贴id（流水号）修改数据库对应的体温数据信息
                 dBtable.cahageData(twBeen.getRunningNumber(), twBeen.getModel(), twBeen.getDate(), twBeen.isEncrypt(),
                         twBeen.getResolution(), twBeen.getInterval(), twBeen.getTimeUnit(), twBeen.getIsLowBattery(),
-                        R.drawable.pass_true, liststiem, list, twTimeLong);
+                        1, liststiem, list, twTimeLong);
 //                for (int i = 0; i < list.size(); i++) {
 //                    twTimeAndDatas = new twTimeAndDatas(list.get(i).toString(), liststiem.get(i).toString());
 ////                    twBeen.setTwTimeAndDatas(twTimeAndDatas);
@@ -391,7 +420,7 @@ public class TWManager {
                     isDayu = false;
                 }
             } else {
-                if (diff > 0) {
+                if (diff > 50000) {
                     isDayu = true;
                 } else {
                     isDayu = false;
@@ -465,16 +494,17 @@ public class TWManager {
     public static String tiemss(int i, long newTime) {
         long diff = 0;
         long times = newTime - (i - 1) * twBeen.getInterval() * 1000;
-        times -= Integer.parseInt(DataConvertUtil.testTime_ss(times)) * 1000;//A方案
+//        times -= Integer.parseInt(DataConvertUtil.testTime_ss(times)) * 1000;//A/b方案/
 //        times = isTimes(times);//A方案
-        times = isTimeB(times);//b方案
+//        times = isTimeB(times);//b方案
         dBtable.cahageData(twBeen.getRunningNumber(), DataConvertUtil.testTime(times));
         Log.i(TAG, "遍历时间：" + DataConvertUtil.testTime(times) + "cha" + diff);
-        return DataConvertUtil.testTime(times - Integer.parseInt(DataConvertUtil.testTime_ss(times)) * 1000);
+//        return DataConvertUtil.testTime(times - Integer.parseInt(DataConvertUtil.testTime_ss(times)) * 1000);//ab方案
+        return DataConvertUtil.testTime(times);//c方案
 
     }
 
-//    /**
+    //    /**
 //     * @param i
 //     * @param newTime 最新体温数据时间
 //     * @return
@@ -521,6 +551,7 @@ public class TWManager {
      * @return
      */
     private static int getYear(int year) {
-        return year + 2017;
+        return year + 17;
+//        return year + 2017;
     }
 }

@@ -102,7 +102,7 @@ public class ReadSerialPort {
                 } else {
 //                    Log.e("tws", "串口第一次过滤数据 resultBytes:" + DataConversionUtils.byteArrayToStringLog(result, resultLens));
                     EventBus.getDefault().post(new MyEventBus(result));
-                    continue;
+                    return;
                 }
             } else {
                 continue;

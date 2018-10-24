@@ -62,11 +62,14 @@ public class SwipeAdapter extends BaseAdapter implements SwipeLayout.OnSwipeStat
         holder.age.setText("年龄：" + list.get(position).getAge());
         holder.gender.setText("性别：" + list.get(position).getGender());
         holder.bednum.setText(list.get(position).getBedNumber() + "床");
-        holder.pNnm.setText("住院号："+list.get(position).getPeopleNum());
-        holder.runNum.setText("设备号："+list.get(position).getRunNum());
+        holder.pNnm.setText("住院号：" + list.get(position).getPeopleNum());
+        holder.runNum.setText("设备号：" + list.get(position).getRunNum());
         holder.dianliang.setText(list.get(position).getDianLiang());
-
-        holder.imageView.setImageResource(list.get(position).getId());
+        if (list.get(position).getId() == 1) {
+            holder.imageView.setImageResource(R.drawable.pass_true);
+        } else {
+            holder.imageView.setImageResource(R.drawable.pass_false);
+        }
 
         holder.tv_Chanage.setOnClickListener(myClickListener);
         holder.tv_Chanage.setTag(position);
